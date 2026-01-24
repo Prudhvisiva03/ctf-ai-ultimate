@@ -8,6 +8,14 @@
     "execution_strategy": "sequential",
     "methods": [
         {
+            "name": "File Header Repair",
+            "description": "Auto-detect and repair corrupted file headers (common CTF trick)",
+            "type": "module",
+            "module": "file_repair",
+            "timeout": 30,
+            "optional": true
+        },
+        {
             "name": "File Identification",
             "description": "Identify file type and MIME encoding",
             "type": "tool",
