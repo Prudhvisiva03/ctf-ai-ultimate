@@ -56,6 +56,12 @@ class Reporter:
         report_lines.append(f"\nTarget: {target}")
         report_lines.append(f"Scan Date: {timestamp}")
         report_lines.append(f"CTFHunter Version: 1.0")
+        
+        # Challenge Description (if provided)
+        if 'challenge_info' in scan_results and scan_results['challenge_info'].get('description'):
+            report_lines.append(f"\n📝 Challenge Description:")
+            report_lines.append(f"   {scan_results['challenge_info']['description']}")
+        
         report_lines.append("\n" + "=" * 80)
         
         # Executive Summary

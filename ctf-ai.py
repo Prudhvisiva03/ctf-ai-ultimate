@@ -231,9 +231,11 @@ class CTF_AI_Assistant:
             'target': target
         }
     
-    def solve_challenge(self, initial_target: str, use_ai=True):
+    def solve_challenge(self, initial_target: str, use_ai=True, description=None):
         """Solve a CTF challenge (Recursive)"""
         print(f"🎯 Target: {initial_target}")
+        if description:
+            print(f"📝 Challenge: {description}")
         print("")
         
         # Check if target exists
@@ -245,6 +247,10 @@ class CTF_AI_Assistant:
         analysis_queue = [initial_target]
         processed_files = set()
         all_results = []
+        challenge_info = {
+            'description': description,
+            'target': initial_target
+        }
         
         while analysis_queue:
             current_target = analysis_queue.pop(0)
@@ -317,7 +323,11 @@ class CTF_AI_Assistant:
             print("\n⚠️  No flags found in this session.")
         
         # Step 5: Generate report (for the initial file)
-        self.reporter.generate_report({'sub_analyses': all_results}, initial_target)
+        report_data = {
+            'sub_analyses': all_results,
+            'challenge_info': challenge_info
+        }
+        self.reporter.generate_report(report_data, initial_target)
         
         print("\n✅ Done! Check the 'output' directory.")
         print("")
@@ -498,6 +508,12 @@ Examples:
         help='Force interactive mode'
     )
     
+    parser.add_argument(
+        '--description', '-d',
+        metavar='TEXT',
+        help='Challenge description/hint to include in report'
+    )
+    
     args = parser.parse_args()
     
     try:
@@ -513,7 +529,7 @@ Examples:
         if args.solve and not args.interactive:
             assistant.print_banner()
             print("")
-            assistant.solve_challenge(args.solve, use_ai=True)
+            assistant.solve_challenge(args.solve, use_ai=True, description=args.description)
         else:
             # Interactive mode
             assistant.interactive_mode()
