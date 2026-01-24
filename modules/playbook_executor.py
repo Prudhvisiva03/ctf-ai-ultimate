@@ -40,6 +40,8 @@ class PlaybookExecutor:
                     print(f"[+] Loaded playbook: {playbook_name}")
             except Exception as e:
                 print(f"⚠️  Failed to load {playbook_file}: {e}")
+                import traceback
+                traceback.print_exc()
         
         if not playbooks:
             print("[*] No playbooks loaded, using defaults")

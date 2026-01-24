@@ -215,6 +215,14 @@ class CTF_AI_Assistant:
                 break
         
         if not target:
+            # Check if it's a system command
+            import shutil
+            command_word = words[0]
+            if shutil.which(command_word):
+                 print(f"⚙️  Executing system command: {request}")
+                 os.system(request)
+                 return {'valid': False, 'error': 'System command executed'}
+            
             return {'valid': False, 'error': 'No target file or URL specified'}
         
         return {
