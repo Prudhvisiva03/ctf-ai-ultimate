@@ -31,7 +31,8 @@ sudo apt-get install -y \
     foremost \
     libxml2-dev \
     libxslt-dev \
-    zlib1g-dev
+    zlib1g-dev \
+    libjpeg-dev
 
 # Steganography tools
 echo ""
