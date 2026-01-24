@@ -330,7 +330,7 @@ class Reporter:
             recommendations.append(f"   💻 COMMAND: objdump -d {target} | less")
         
         # PCAP-specific
-        if 'tcp_streams' in scan_results or 'pcap' in str(scan_results.get('file_type', '')).lower()):
+        if 'tcp_streams' in scan_results or 'pcap' in str(scan_results.get('file_type', '')).lower():
             recommendations.append("🔍 HINT: Network capture detected")
             recommendations.append(f"   💻 COMMAND: wireshark {target}")
             recommendations.append(f"   💻 COMMAND: tshark -r {target} -Y http -T fields -e http.request.uri")
