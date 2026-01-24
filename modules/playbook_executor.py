@@ -318,6 +318,26 @@ class PlaybookExecutor:
                 scanner = ArchiveScanner(self.config)
                 result = scanner.scan(target)
                 
+            elif module_name == 'exif_helper':
+                # Run the EXIF helper script
+                import sys
+                import os
+                script_path = os.path.join(os.path.dirname(__file__), 'exif_helper.py')
+                result = subprocess.run(
+                    [sys.executable, script_path, target],
+                    capture_output=True,
+                    text=True,
+                    timeout=method.get('timeout', 60)
+                )
+                output = result.stdout + result.stderr
+                flags = self._search_flags(output)
+                return {
+                    'success': result.returncode == 0,
+                    'output': output,
+                    'flags': flags,
+                    'findings': [output] if output else []
+                }
+                
             elif module_name == 'web_scan':
                 from modules.web_scan import WebScanner
                 scanner = WebScanner(self.config)

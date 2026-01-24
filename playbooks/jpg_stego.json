@@ -29,6 +29,14 @@
             "timeout": 30
         },
         {
+            "name": "EXIF Base64 Auto-Decode",
+            "description": "Auto-detect and decode Base64 from EXIF, try as steghide passwords",
+            "type": "module",
+            "module": "exif_helper",
+            "timeout": 60,
+            "optional": true
+        },
+        {
             "name": "Steghide Info",
             "description": "Check for steghide embedded data",
             "type": "tool",
