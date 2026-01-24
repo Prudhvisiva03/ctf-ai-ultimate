@@ -1,0 +1,27 @@
+# CTF-AI Ultimate - Python Dependencies
+# Install with: pip install -r requirements.txt
+
+# Core dependencies
+python-magic==0.4.27
+python-magic-bin==0.4.14; sys_platform == 'win32'
+
+# Web scanning
+requests==2.31.0
+beautifulsoup4==4.12.2
+lxml==4.9.3
+
+# AI Providers (Install based on your choice)
+# OpenAI (GPT-4)
+openai==1.6.1
+
+# Claude (Anthropic)
+anthropic==0.8.1
+
+# Groq (fast inference)
+groq==0.4.1
+
+# For local AI with Ollama, just install Ollama from ollama.ai
+# No Python package needed for Ollama
+
+# Optional: Enhanced features
+pycryptodome==3.19.0
