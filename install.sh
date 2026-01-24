@@ -28,7 +28,10 @@ sudo apt-get install -y \
     binwalk \
     exiftool \
     binutils \
-    foremost
+    foremost \
+    libxml2-dev \
+    libxslt-dev \
+    zlib1g-dev
 
 # Steganography tools
 echo ""
