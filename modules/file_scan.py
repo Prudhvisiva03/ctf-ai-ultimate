@@ -7,7 +7,16 @@ import subprocess
 import os
 import re
 import magic
+import magic
+import base64
+import binascii
 from pathlib import Path
+try:
+    from PIL import Image
+    import pytesseract
+except ImportError:
+    Image = None
+    pytesseract = None
 
 
 class FileScanner:
@@ -155,6 +164,55 @@ class FileScanner:
             })
             
         return False
+
+    def check_and_decode_base64(self, filepath):
+        """Check for and decode large Base64 blobs"""
+        try:
+            with open(filepath, 'rb') as f:
+                content = f.read()
+            
+            # Check if it looks like base64 characters (A-Z, a-z, 0-9, +, /, =)
+            # Simple heuristic: remove whitespace, check if valid b64
+            cleaned = re.sub(b'[ \t\n\r]', b'', content)
+            
+            if len(cleaned) > 100:  # Only bother if it's substantial data
+                try:
+                    # Try decoding
+                    decoded_data = base64.b64decode(cleaned, validate=True)
+                    
+                    # If successful, detect what the decoded data IS
+                    mime = magic.from_buffer(decoded_data, mime=True)
+                    
+                    # Create a filename for it
+                    ext = mime.split('/')[-1]
+                    if ext == 'octet-stream': ext = 'bin'
+                    if 'image' in mime: ext = 'png' # simplification
+                    
+                    output_filename = f"{os.path.basename(filepath)}_decoded.{ext}"
+                    output_path = os.path.join(self.config.get('output_directory', 'output'), output_filename)
+                    
+                    # Ensure output dir exists
+                    os.makedirs(os.path.dirname(output_path), exist_ok=True)
+                    
+                    with open(output_path, 'wb') as out:
+                        out.write(decoded_data)
+                        
+                    self.findings.append({
+                        'type': 'decoding',
+                        'message': f'Detected Base64 encoded {mime} data! Decoded to {output_path}',
+                        'status': 'success',
+                        'new_file': output_path  # Hint for recursion
+                    })
+                    print(f"🔓 Automatically decoded Base64 data to: {output_path}")
+                    return output_path
+                    
+                except binascii.Error:
+                    pass # Not valid base64
+                    
+        except Exception as e:
+            print(f"Error checking base64: {e}")
+            
+        return None
     
     def scan(self, filepath):
         """Perform comprehensive file scan"""
@@ -204,6 +262,108 @@ class FileScanner:
             print(f"⚠️  Found {len(embedded)} embedded file signatures")
             for emb in embedded[:5]:  # Show first 5
                 print(f"    {emb}")
+
+        # Check for Base64
+        print("[*] Checking for encoded data...")
+        decoded_file = self.check_and_decode_base64(filepath)
+        if decoded_file:
+            scan_results['decoded_file'] = decoded_file
+            
+        # Deep Image Scan (LSB + OCR)
+        if 'image' in file_type['mime'] and Image:
+            print("[*] Performing Deep Image Analysis (LSB & OCR)...")
+            image_findings = self.deep_image_scan(filepath)
+            if image_findings:
+                scan_results['image_analysis'] = image_findings
+                # Merge flags
+                if 'flags' in image_findings:
+                    if 'flags' not in scan_results: scan_results['flags'] = []
+                    scan_results['flags'].extend(image_findings['flags'])
+                    scan_results['flags'] = list(set(scan_results['flags']))
         
         scan_results['findings'] = self.findings
         return scan_results
+
+    def deep_image_scan(self, filepath):
+        """Perform deep steganography and visual analysis on images"""
+        results = {'flags': [], 'text': ''}
+        
+        try:
+            img = Image.open(filepath)
+            
+            # 1. OCR Analysis (Visual Text)
+            if pytesseract:
+                try:
+                    text = pytesseract.image_to_string(img)
+                    if len(text.strip()) > 0:
+                        results['text'] = text.strip()
+                        # Search for flags in visual text
+                        visual_flags = self.search_flags(text)
+                        if visual_flags:
+                            results['flags'].extend(visual_flags)
+                            self.findings.append({'type': 'ocr', 'message': f'Found flag visually: {visual_flags}', 'status': 'success'})
+                except Exception as e:
+                    pass # OCR not available or failed
+            
+            # 2. LSB Steganography Analysis (Native Python)
+            # We scan R, G, B, and RGB modes
+            print("   ↳ Scanning LSB planes...")
+            if img.mode in ['RGB', 'RGBA']:
+                pixels = list(img.getdata())
+                
+                # Helper to check bits
+                def check_bits(bits, channel_name):
+                    # dynamic bit string construction
+                    data = bytearray()
+                    for i in range(0, len(bits), 8):
+                        if i+8 > len(bits): break
+                        b = bits[i:i+8]
+                        data.append(int(b, 2))
+                    
+                    # Search in decoded bytes
+                    try:
+                        decoded = data.decode('utf-8', errors='ignore')
+                        found = self.search_flags(decoded)
+                        if found:
+                            results['flags'].extend(found)
+                            msg = f'Found LSB flag in {channel_name} channel: {found}'
+                            self.findings.append({'type': 'stego', 'message': msg, 'status': 'success'})
+                            print(f"   ✅ {msg}")
+                    except: pass
+
+                # Collect bits
+                # Limit to first 500KB of data to avoid memory issues on huge images
+                limit = 500000 * 8 
+                
+                # R, G, B, RGB channels
+                r_bits = ""
+                g_bits = ""
+                b_bits = ""
+                rgb_bits = ""
+                
+                count = 0
+                for p in pixels:
+                    # p is (r,g,b) or (r,g,b,a)
+                    r, g, b = p[0], p[1], p[2]
+                    
+                    r_b = str(r & 1)
+                    g_b = str(g & 1)
+                    b_b = str(b & 1)
+                    
+                    r_bits += r_b
+                    g_bits += g_b
+                    b_bits += b_b
+                    rgb_bits += r_b + g_b + b_b
+                    
+                    count += 1
+                    if count > 500000: break # enough sample size
+                
+                check_bits(r_bits, "Red")
+                check_bits(g_bits, "Green")
+                check_bits(b_bits, "Blue")
+                check_bits(rgb_bits, "RGB Combined")
+                
+        except Exception as e:
+            print(f"   ⚠️ Image scan error: {e}")
+            
+        return results

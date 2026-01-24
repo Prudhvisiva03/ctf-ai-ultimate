@@ -222,85 +222,95 @@ class CTF_AI_Assistant:
             'target': target
         }
     
-    def solve_challenge(self, target: str, use_ai=True):
-        """Solve a CTF challenge"""
-        print(f"🎯 Target: {target}")
+    def solve_challenge(self, initial_target: str, use_ai=True):
+        """Solve a CTF challenge (Recursive)"""
+        print(f"🎯 Target: {initial_target}")
         print("")
         
         # Check if target exists
-        if not target.startswith('http') and not os.path.exists(target):
-            print(f"❌ File not found: {target}")
+        if not initial_target.startswith('http') and not os.path.exists(initial_target):
+            print(f"❌ File not found: {initial_target}")
             return
+
+        # Queue for files to analyze (BFS)
+        analysis_queue = [initial_target]
+        processed_files = set()
+        all_results = []
         
-        # Step 1: Initial file analysis
-        print("🔍 Step 1: Analyzing target...")
-        
-        file_info = self.get_file_info(target)
-        
-        if use_ai and self.ai_engine.is_available():
-            # Step 2: AI analysis
-            print("\n🤖 Step 2: AI analyzing challenge type...")
+        while analysis_queue:
+            current_target = analysis_queue.pop(0)
             
-            analysis = self.ai_engine.analyze_challenge(file_info)
+            # Avoid loops
+            if current_target in processed_files:
+                continue
+            processed_files.add(current_target)
             
-            print(f"   Challenge Type: {analysis.get('challenge_type', 'unknown')}")
-            print(f"   Confidence: {analysis.get('confidence', 0)*100:.0f}%")
-            print(f"   Reasoning: {analysis.get('reasoning', 'N/A')}")
-            print(f"   Recommended Playbook: {analysis.get('recommended_playbook', 'generic')}")
+            print(f"\n⚡ Analyzing: {os.path.basename(current_target)}")
+            print("━" * 40)
             
-            playbook_name = analysis.get('recommended_playbook', 'generic')
-        else:
-            # Manual playbook selection
-            print("\n📋 Step 2: Selecting playbook...")
-            playbook_name = self.select_playbook_by_extension(file_info)
-            print(f"   Selected: {playbook_name}")
-        
-        # Step 3: Execute playbook
-        print(f"\n🚀 Step 3: Executing playbook '{playbook_name}'...")
-        
-        results = self.playbook_executor.execute_playbook(
-            playbook_name,
-            target,
-            ai_engine=self.ai_engine if use_ai else None
-        )
-        
-        # Step 4: Summary
-        print("\n" + "="*65)
-        print("📊 ANALYSIS COMPLETE")
-        print("="*65)
-        
-        if results.get('flags'):
-            print(f"\n🎉 SUCCESS! Found {len(results['flags'])} flag(s):")
-            for i, flag in enumerate(results['flags'], 1):
-                print(f"   {i}. {flag}")
-        else:
-            print("\n⚠️  No flags found automatically")
+            # Step 1: File analysis
+            file_info = self.get_file_info(current_target)
+            scan_results = self.file_scanner.scan(current_target)
+            
+            # Check for auto-extracted/decoded files to queue
+            if scan_results.get('decoded_file'):
+                new_file = scan_results['decoded_file']
+                if new_file not in processed_files:
+                    print(f"   ↪️  Queueing new file: {new_file}")
+                    analysis_queue.append(new_file)
             
             if use_ai and self.ai_engine.is_available():
-                # Ask AI for suggestions
-                print("\n🤖 AI Suggestions:")
-                suggestions = self.ai_engine.suggest_next_steps(
-                    results,
-                    [playbook_name]
+                # Step 2: AI analysis
+                print("\n🤖 Step 2: AI analyzing challenge type...")
+                
+                # Pass scan findings to AI
+                file_info['scan_findings'] = scan_results.get('findings', [])
+                
+                analysis = self.ai_engine.analyze_challenge(file_info)
+                playbook_name = analysis.get('recommended_playbook', 'generic')
+                print(f"   Strategy: {playbook_name} ({analysis.get('confidence', 0)*100:.0f}%)")
+            else:
+                # Manual playbook selection
+                playbook_name = self.select_playbook_by_extension(file_info)
+                print(f"   Strategy: {playbook_name} (Manual)")
+            
+            # Step 3: Execute playbook
+            # Only execute if it's not 'generic' OR we haven't found anything yet
+            if playbook_name != 'generic' or len(analysis_queue) == 0:
+                print(f"\n🚀 Executing playbook...")
+                
+                results = self.playbook_executor.execute_playbook(
+                    playbook_name,
+                    current_target,
+                    ai_engine=self.ai_engine if use_ai else None
                 )
+                all_results.append(results)
                 
-                print(f"   {suggestions.get('reasoning', 'Try manual analysis')}")
-                
-                if suggestions.get('next_playbook'):
-                    print(f"\n💡 Try running: solve {target} with playbook {suggestions['next_playbook']}")
+                # Report Flags Immediately
+                if results.get('flags'):
+                    print(f"\n🎉 FLAG FOUND in {os.path.basename(current_target)}:")
+                    for flag in results['flags']:
+                        desc = self.describe_flag(flag)
+                        print(f"   🚩 {flag}")
+                        print(f"      ℹ️  {desc}")
+            
+            print("━" * 40)
+
+        # Final Summary
+        print("\n" + "="*65)
+        print("📊 SESSION COMPLETE")
+        print("="*65)
         
-        print(f"\n📄 Methods executed: {len(results.get('methods_executed', []))}")
+        total_flags = sum(len(r.get('flags', [])) for r in all_results)
+        if total_flags > 0:
+            print(f"\n🏆 GRAND TOTAL: {total_flags} Flag(s) Found!")
+        else:
+            print("\n⚠️  No flags found in this session.")
         
-        if results.get('findings'):
-            print(f"🔍 Findings: {len(results['findings'])}")
-            for finding in results['findings'][:5]:
-                print(f"   • {finding}")
+        # Step 5: Generate report (for the initial file)
+        self.reporter.generate_report({'sub_analyses': all_results}, initial_target)
         
-        # Step 5: Generate report
-        print(f"\n📝 Generating report...")
-        self.reporter.generate_report(results, target)
-        
-        print("\n✅ Done! Check the 'output' directory for detailed reports.")
+        print("\n✅ Done! Check the 'output' directory.")
         print("")
     
     def get_file_info(self, filepath: str) -> dict:
@@ -333,6 +343,17 @@ class CTF_AI_Assistant:
                 'extension': Path(filepath).suffix,
                 'size': os.path.getsize(filepath) if os.path.exists(filepath) else 0
             }
+
+    def describe_flag(self, flag_text: str) -> str:
+        """Get description for a flag based on config"""
+        descriptions = self.config.get('flag_descriptions', {})
+        
+        # Check specific prefixes
+        for prefix, desc in descriptions.items():
+            if prefix in flag_text:
+                return desc
+        
+        return "Unknown Flag Format"
     
     def select_playbook_by_extension(self, file_info: dict) -> str:
         """Simple playbook selection based on file extension"""
