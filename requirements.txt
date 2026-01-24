@@ -8,7 +8,6 @@ python-magic-bin==0.4.14; sys_platform == 'win32'
 # Web scanning
 requests==2.31.0
 beautifulsoup4==4.12.2
-lxml==4.9.3
 
 # AI Providers (Install based on your choice)
 # OpenAI (GPT-4)

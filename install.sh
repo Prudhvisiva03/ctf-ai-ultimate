@@ -34,6 +34,7 @@ sudo apt-get install -y \
     zlib1g-dev \
     libjpeg-dev \
     python3-pil \
+    python3-lxml \
     tesseract-ocr
 
 # Steganography tools
