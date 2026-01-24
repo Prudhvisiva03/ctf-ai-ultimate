@@ -32,7 +32,9 @@ sudo apt-get install -y \
     libxml2-dev \
     libxslt-dev \
     zlib1g-dev \
-    libjpeg-dev
+    libjpeg-dev \
+    python3-pil \
+    tesseract-ocr
 
 # Steganography tools
 echo ""

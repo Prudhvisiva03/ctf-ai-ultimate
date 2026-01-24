@@ -25,7 +25,3 @@ groq==0.4.1
 
 # Optional: Enhanced features
 pycryptodome==3.19.0
-
-# Image Analysis & Forensics
-Pillow>=11.0.0
-pytesseract==0.3.10
