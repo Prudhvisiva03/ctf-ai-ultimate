@@ -257,44 +257,105 @@ class Reporter:
         return extracted
     
     def _generate_recommendations(self, scan_results):
-        """Generate recommendations for next steps"""
+        """Generate intelligent recommendations based on findings"""
         recommendations = []
         
-        # Generic recommendations
-        if not self._find_flags_in_results(scan_results):
-            recommendations.append("No flags found - consider manual analysis of extracted files")
+        # If flags found, we're done!
+        if self._find_flags_in_results(scan_results):
+            recommendations.append("✅ Flag(s) found! Challenge solved.")
+            return recommendations
+        
+        # Analyze what was found and suggest next steps
+        
+        # Check for Base64 in metadata/EXIF
+        if 'metadata' in scan_results:
+            metadata = scan_results['metadata']
+            import re
+            base64_pattern = r'[A-Za-z0-9+/]{20,}={0,2}'
+            
+            for key, value in (metadata.items() if isinstance(metadata, dict) else []):
+                if isinstance(value, str) and re.search(base64_pattern, value):
+                    recommendations.append(f"🔍 HINT: Found Base64-like string in {key}: '{value[:50]}...'")
+                    recommendations.append(f"   → Try: echo '{value}' | base64 -d")
+                    recommendations.append(f"   → If it's a password hint, try decoding and using with steghide/stegseek")
+        
+        # Check for steghide-protected files
+        if 'stego_findings' in scan_results or any('steghide' in str(v).lower() for v in str(scan_results).split()):
+            if 'could not extract' in str(scan_results).lower():
+                recommendations.append("🔍 HINT: Steghide data detected but needs a password")
+                recommendations.append("   → Check EXIF metadata for password hints")
+                recommendations.append("   → Try common passwords: password, admin, flag, secret")
+                recommendations.append("   → Use stegseek with rockyou.txt wordlist")
+        
+        # Check for embedded files
+        if 'embedded_files' in scan_results and scan_results['embedded_files']:
+            count = len(scan_results['embedded_files'])
+            recommendations.append(f"🔍 HINT: Found {count} embedded file signature(s)")
+            recommendations.append("   → Use binwalk -e or foremost to extract")
+            recommendations.append("   → Analyze extracted files individually")
+        
+        # Check for encoded data patterns
+        output_str = str(scan_results).lower()
+        if 'hex' in output_str or 'base64' in output_str or 'base32' in output_str:
+            recommendations.append("🔍 HINT: Encoded data detected in output")
+            recommendations.append("   → Try CyberChef or online decoders")
+            recommendations.append("   → Look for multi-layer encoding")
         
         # Archive-specific
         if 'archive_type' in scan_results:
-            recommendations.append("Scan extracted files individually for hidden data")
+            recommendations.append("🔍 HINT: Archive file detected")
+            recommendations.append("   → Extract and scan each file individually")
+            recommendations.append("   → Check for password-protected files")
+            recommendations.append("   → Look for hidden files (ls -la)")
         
-        # Stego-specific
-        if 'stego_findings' in scan_results:
-            recommendations.append("Try additional steganography tools (outguess, stegpy, etc.)")
+        # Image-specific (PNG/JPG)
+        if any(ext in str(scan_results.get('file_type', '')).lower() for ext in ['png', 'jpeg', 'jpg']):
+            recommendations.append("🔍 HINT: Image file - try these techniques:")
+            recommendations.append("   → LSB steganography: zsteg (PNG), stegsolve")
+            recommendations.append("   → Metadata: exiftool, strings")
+            recommendations.append("   → Visual analysis: Open the image and look carefully")
+            recommendations.append("   → Color channel analysis: stegsolve, PIL")
         
         # Binary-specific
-        if 'checksec' in scan_results:
-            recommendations.append("Perform dynamic analysis with gdb or radare2")
-            recommendations.append("Check for hardcoded strings or encoding schemes")
+        if 'checksec' in scan_results or 'elf' in str(scan_results.get('file_type', '')).lower():
+            recommendations.append("🔍 HINT: Binary file detected")
+            recommendations.append("   → Run the binary and observe behavior")
+            recommendations.append("   → Use ltrace/strace to see system calls")
+            recommendations.append("   → Decompile with Ghidra or radare2")
+            recommendations.append("   → Check for hardcoded strings or XOR encoding")
+        
+        # PCAP-specific
+        if 'tcp_streams' in scan_results or 'pcap' in str(scan_results.get('file_type', '')).lower():
+            recommendations.append("🔍 HINT: Network capture detected")
+            recommendations.append("   → Follow TCP streams in Wireshark")
+            recommendations.append("   → Export HTTP objects (File → Export Objects → HTTP)")
+            recommendations.append("   → Look for suspicious DNS queries")
+            recommendations.append("   → Check for data exfiltration in ICMP/DNS")
+        
+        # PDF-specific
+        if 'pdf' in str(scan_results.get('file_type', '')).lower():
+            recommendations.append("🔍 HINT: PDF file detected")
+            recommendations.append("   → Extract text: pdftotext")
+            recommendations.append("   → Check for embedded files: pdfdetach -list")
+            recommendations.append("   → Analyze JavaScript: pdf-parser")
         
         # Web-specific
         if 'html_analysis' in scan_results:
-            recommendations.append("Test for SQL injection, XSS, or other web vulnerabilities")
-            recommendations.append("Analyze client-side JavaScript for logic flaws")
+            html = scan_results['html_analysis']
+            if html.get('comments'):
+                recommendations.append(f"🔍 HINT: Found {len(html['comments'])} HTML comment(s)")
+                recommendations.append("   → Check comments for hints or encoded data")
+            if html.get('hidden_inputs'):
+                recommendations.append(f"🔍 HINT: Found {len(html['hidden_inputs'])} hidden input(s)")
+                recommendations.append("   → Inspect hidden form fields")
         
-        # PCAP-specific
-        if 'tcp_streams' in scan_results:
-            recommendations.append("Analyze extracted HTTP objects for hidden data")
-            recommendations.append("Look for covert channels in DNS or ICMP")
-        
-        # PDF-specific
-        if 'pdfinfo' in scan_results:
-            recommendations.append("Check for alternate data streams or embedded JavaScript")
-        
-        # If no specific recommendations
+        # Generic fallback
         if not recommendations:
-            recommendations.append("Manual review of scan results recommended")
-            recommendations.append("Try different analysis tools or techniques")
+            recommendations.append("🔍 No obvious clues found. Try these general techniques:")
+            recommendations.append("   → Run 'strings' and grep for patterns")
+            recommendations.append("   → Check file with 'binwalk' for hidden data")
+            recommendations.append("   → Try online tools: CyberChef, dcode.fr")
+            recommendations.append("   → Manual inspection is often key!")
         
         return recommendations
     
