@@ -1,0 +1,140 @@
+{
+    "name": "PCAP Network Analysis (Deep Packet Inspection)",
+    "description": "Analyze network traffic, extract files (HTTP/SMB/FTP), and statistics",
+    "category": "network",
+    "file_types": [
+        ".pcap",
+        ".pcapng",
+        ".cap"
+    ],
+    "execution_strategy": "sequential",
+    "methods": [
+        {
+            "name": "Capinfos Stats",
+            "description": "General statistics about the capture",
+            "type": "tool",
+            "tool": "capinfos",
+            "args": [
+                "{target}"
+            ],
+            "timeout": 15,
+            "optional": true
+        },
+        {
+            "name": "Protocol Hierarchy",
+            "description": "Show protocol hierarchy statistics",
+            "type": "tool",
+            "tool": "tshark",
+            "args": [
+                "-r",
+                "{target}",
+                "-q",
+                "-z",
+                "io,phs"
+            ],
+            "timeout": 60
+        },
+        {
+            "name": "HTTP Objects Export",
+            "description": "Extract all HTTP objects to output folder",
+            "type": "tool",
+            "tool": "tshark",
+            "args": [
+                "-r",
+                "{target}",
+                "--export-objects",
+                "http,output/_http_objects"
+            ],
+            "timeout": 120,
+            "optional": true
+        },
+        {
+            "name": "SMB Objects Export",
+            "description": "Extract all SMB objects to output folder",
+            "type": "tool",
+            "tool": "tshark",
+            "args": [
+                "-r",
+                "{target}",
+                "--export-objects",
+                "smb,output/_smb_objects"
+            ],
+            "timeout": 120,
+            "optional": true
+        },
+        {
+            "name": "DNS Query Stats",
+            "description": "List all DNS queries",
+            "type": "tool",
+            "tool": "tshark",
+            "args": [
+                "-r",
+                "{target}",
+                "-Y",
+                "dns.flags.response == 0",
+                "-T",
+                "fields",
+                "-e",
+                "dns.qry.name"
+            ],
+            "timeout": 60
+        },
+        {
+            "name": "HTTP Requests",
+            "description": "List all HTTP requests (method + URI)",
+            "type": "tool",
+            "tool": "tshark",
+            "args": [
+                "-r",
+                "{target}",
+                "-Y",
+                "http.request",
+                "-T",
+                "fields",
+                "-e",
+                "http.request.method",
+                "-e",
+                "http.request.uri"
+            ],
+            "timeout": 60
+        },
+        {
+            "name": "Conversations (TCP)",
+            "description": "List TCP conversations",
+            "type": "tool",
+            "tool": "tshark",
+            "args": [
+                "-r",
+                "{target}",
+                "-q",
+                "-z",
+                "conv,tcp"
+            ],
+            "timeout": 60
+        },
+        {
+            "name": "Grep Packet Data",
+            "description": "Search raw packet data for flag patterns",
+            "type": "tool",
+            "tool": "ngrep",
+            "args": [
+                "-I",
+                "{target}",
+                "-q",
+                "flag"
+            ],
+            "timeout": 60,
+            "optional": true
+        },
+        {
+            "name": "Strings Scan",
+            "description": "Run strings on the raw PCAP file",
+            "type": "tool",
+            "tool": "strings",
+            "args": [
+                "{target}"
+            ],
+            "timeout": 30
+        }
+    ]
+}

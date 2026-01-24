@@ -1,0 +1,127 @@
+{
+    "name": "PNG Steganography Analysis (Deep Scan)",
+    "description": "Exhaustive analysis: color planes, chunks, metadata, embedded files, and strings",
+    "category": "steganography",
+    "file_types": [
+        ".png",
+        ".bmp"
+    ],
+    "execution_strategy": "sequential",
+    "methods": [
+        {
+            "name": "File Integrity (pngcheck)",
+            "description": "Check for corrupted chunks or extra data",
+            "type": "tool",
+            "tool": "pngcheck",
+            "args": [
+                "-v",
+                "{target}"
+            ],
+            "timeout": 15,
+            "optional": true
+        },
+        {
+            "name": "Zsteg (All Planes)",
+            "description": "Deep scan of all LSB planes and compression artifacts",
+            "type": "tool",
+            "tool": "zsteg",
+            "args": [
+                "-a",
+                "{target}"
+            ],
+            "timeout": 120,
+            "stop_on_success": false
+        },
+        {
+            "name": "EXIF Metadata",
+            "description": "Extract all standard and non-standard metadata",
+            "type": "tool",
+            "tool": "exiftool",
+            "args": [
+                "-a",
+                "-u",
+                "-g1",
+                "{target}"
+            ],
+            "timeout": 30
+        },
+        {
+            "name": "Strings (ASCII)",
+            "description": "Scan for standard ASCII strings",
+            "type": "tool",
+            "tool": "strings",
+            "args": [
+                "{target}"
+            ],
+            "timeout": 30
+        },
+        {
+            "name": "Strings (Unicode/Looking)",
+            "description": "Scan for wide characters (common in Windows capabilities)",
+            "type": "tool",
+            "tool": "strings",
+            "args": [
+                "-e",
+                "l",
+                "{target}"
+            ],
+            "timeout": 30
+        },
+        {
+            "name": "Binwalk Extraction",
+            "description": "Carve embedded files using signature analysis",
+            "type": "tool",
+            "tool": "binwalk",
+            "args": [
+                "-e",
+                "--run-as=root",
+                "-C",
+                "output/_extracted",
+                "{target}"
+            ],
+            "timeout": 120
+        },
+        {
+            "name": "Foremost Carving",
+            "description": "Deep file carving (alternative to binwalk)",
+            "type": "tool",
+            "tool": "foremost",
+            "args": [
+                "-i",
+                "{target}",
+                "-o",
+                "output/_foremost",
+                "-v"
+            ],
+            "timeout": 60,
+            "optional": true
+        },
+        {
+            "name": "Steghide Check",
+            "description": "Check for steghide embedding (passwordless)",
+            "type": "tool",
+            "tool": "steghide",
+            "args": [
+                "extract",
+                "-sf",
+                "{target}",
+                "-p",
+                ""
+            ],
+            "timeout": 30,
+            "optional": true
+        },
+        {
+            "name": "Identificaton (ImageMagick)",
+            "description": "Check for unusual image properties",
+            "type": "tool",
+            "tool": "identify",
+            "args": [
+                "-verbose",
+                "{target}"
+            ],
+            "timeout": 30,
+            "optional": true
+        }
+    ]
+}

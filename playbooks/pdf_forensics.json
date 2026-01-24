@@ -1,0 +1,70 @@
+{
+    "name": "PDF Forensics Analysis",
+    "description": "Extract hidden data and analyze PDF files",
+    "category": "forensics",
+    "file_types": [
+        ".pdf"
+    ],
+    "execution_strategy": "sequential",
+    "methods": [
+        {
+            "name": "PDF Info",
+            "description": "Extract PDF metadata and information",
+            "type": "tool",
+            "tool": "pdfinfo",
+            "args": [
+                "{target}"
+            ],
+            "timeout": 30
+        },
+        {
+            "name": "PDF Text Extraction",
+            "description": "Extract text from PDF",
+            "type": "tool",
+            "tool": "pdftotext",
+            "args": [
+                "{target}",
+                "output/pdf_text.txt"
+            ],
+            "timeout": 60
+        },
+        {
+            "name": "EXIF Metadata",
+            "description": "Extract detailed metadata with exiftool",
+            "type": "tool",
+            "tool": "exiftool",
+            "args": [
+                "{target}"
+            ],
+            "timeout": 30
+        },
+        {
+            "name": "Binwalk Embedded Files",
+            "description": "Detect embedded files in PDF",
+            "type": "tool",
+            "tool": "binwalk",
+            "args": [
+                "{target}"
+            ],
+            "timeout": 60
+        },
+        {
+            "name": "Strings Extraction",
+            "description": "Extract printable strings",
+            "type": "tool",
+            "tool": "strings",
+            "args": [
+                "{target}"
+            ],
+            "timeout": 30
+        },
+        {
+            "name": "Full PDF Scan",
+            "description": "Complete PDF analysis with module",
+            "type": "module",
+            "module": "pdf_scan",
+            "function": "scan",
+            "timeout": 120
+        }
+    ]
+}

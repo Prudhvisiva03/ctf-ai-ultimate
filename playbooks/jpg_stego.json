@@ -1,0 +1,88 @@
+{
+    "name": "JPEG Steganography Analysis",
+    "description": "Steganography analysis workflow for JPEG images",
+    "category": "steganography",
+    "file_types": [
+        ".jpg",
+        ".jpeg"
+    ],
+    "execution_strategy": "sequential",
+    "methods": [
+        {
+            "name": "File Verification",
+            "description": "Verify JPEG file integrity",
+            "type": "tool",
+            "tool": "file",
+            "args": [
+                "{target}"
+            ],
+            "timeout": 10
+        },
+        {
+            "name": "EXIF Metadata",
+            "description": "Extract JPEG metadata",
+            "type": "tool",
+            "tool": "exiftool",
+            "args": [
+                "{target}"
+            ],
+            "timeout": 30
+        },
+        {
+            "name": "Steghide Info",
+            "description": "Check for steghide embedded data",
+            "type": "tool",
+            "tool": "steghide",
+            "args": [
+                "info",
+                "{target}"
+            ],
+            "timeout": 20
+        },
+        {
+            "name": "Steghide Passwordless",
+            "description": "Try extracting with empty password",
+            "type": "tool",
+            "tool": "steghide",
+            "args": [
+                "extract",
+                "-sf",
+                "{target}",
+                "-p",
+                ""
+            ],
+            "timeout": 30
+        },
+        {
+            "name": "Stegseek Fast Crack",
+            "description": "Fast steghide cracking with stegseek",
+            "type": "tool",
+            "tool": "stegseek",
+            "args": [
+                "{target}",
+                "/usr/share/wordlists/rockyou.txt"
+            ],
+            "timeout": 300
+        },
+        {
+            "name": "Binwalk Scan",
+            "description": "Check for embedded files",
+            "type": "tool",
+            "tool": "binwalk",
+            "args": [
+                "{target}"
+            ],
+            "timeout": 60
+        },
+        {
+            "name": "Strings Search",
+            "description": "Extract strings and search for flags",
+            "type": "tool",
+            "tool": "strings",
+            "args": [
+                "{target}"
+            ],
+            "timeout": 30
+        }
+    ]
+}

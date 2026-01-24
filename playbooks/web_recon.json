@@ -1,0 +1,53 @@
+{
+    "name": "Web Reconnaissance",
+    "description": "Web challenge analysis and reconnaissance",
+    "category": "web",
+    "file_types": [
+        "url",
+        "http"
+    ],
+    "execution_strategy": "sequential",
+    "methods": [
+        {
+            "name": "HTTP Request",
+            "description": "Fetch web page and analyze",
+            "type": "module",
+            "module": "web_scan",
+            "function": "scan",
+            "timeout": 120
+        },
+        {
+            "name": "Robots.txt Check",
+            "description": "Check robots.txt for hidden paths",
+            "type": "tool",
+            "tool": "curl",
+            "args": [
+                "-s",
+                "{target}/robots.txt"
+            ],
+            "timeout": 30
+        },
+        {
+            "name": "Sitemap Check",
+            "description": "Check sitemap.xml",
+            "type": "tool",
+            "tool": "curl",
+            "args": [
+                "-s",
+                "{target}/sitemap.xml"
+            ],
+            "timeout": 30
+        },
+        {
+            "name": "Common Paths",
+            "description": "Check for common hidden paths",
+            "type": "tool",
+            "tool": "curl",
+            "args": [
+                "-I",
+                "{target}/admin"
+            ],
+            "timeout": 20
+        }
+    ]
+}

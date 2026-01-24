@@ -1,0 +1,123 @@
+{
+    "name": "Binary Analysis (Deep Static)",
+    "description": "Exhaustive static analysis of ELF/PE binaries: strings, symbols, sections, and decompilation preview",
+    "category": "reverse-engineering",
+    "file_types": [
+        ".elf",
+        ".bin",
+        ".exe",
+        ".o",
+        ".so"
+    ],
+    "execution_strategy": "sequential",
+    "methods": [
+        {
+            "name": "File Type & Architecture",
+            "description": "Identify binary format, architecture, and linking",
+            "type": "tool",
+            "tool": "file",
+            "args": [
+                "{target}"
+            ],
+            "timeout": 10
+        },
+        {
+            "name": "Security Check (Checksec)",
+            "description": "Check for PIE, NX, Canary, RELRO",
+            "type": "tool",
+            "tool": "checksec",
+            "args": [
+                "--file={target}"
+            ],
+            "timeout": 15,
+            "optional": true
+        },
+        {
+            "name": "Strings (ASCII)",
+            "description": "Extract ASCII strings",
+            "type": "tool",
+            "tool": "strings",
+            "args": [
+                "-n",
+                "8",
+                "{target}"
+            ],
+            "timeout": 30
+        },
+        {
+            "name": "Strings (Wide/Unicode)",
+            "description": "Extract Wide/Unicode strings",
+            "type": "tool",
+            "tool": "strings",
+            "args": [
+                "-e",
+                "l",
+                "{target}"
+            ],
+            "timeout": 30
+        },
+        {
+            "name": "Symbol Table (nm)",
+            "description": "List symbols (functions/variables)",
+            "type": "tool",
+            "tool": "nm",
+            "args": [
+                "-D",
+                "--demangle",
+                "{target}"
+            ],
+            "timeout": 30,
+            "optional": true
+        },
+        {
+            "name": "Dynamic Dependencies (ldd)",
+            "description": "List shared libraries",
+            "type": "tool",
+            "tool": "ldd",
+            "args": [
+                "{target}"
+            ],
+            "timeout": 15,
+            "optional": true
+        },
+        {
+            "name": "ELF Headers (readelf)",
+            "description": "Read ELF headers",
+            "type": "tool",
+            "tool": "readelf",
+            "args": [
+                "-h",
+                "{target}"
+            ],
+            "timeout": 15,
+            "optional": true
+        },
+        {
+            "name": "Sections Info (readelf)",
+            "description": "Read ELF sections",
+            "type": "tool",
+            "tool": "readelf",
+            "args": [
+                "-S",
+                "{target}"
+            ],
+            "timeout": 15,
+            "optional": true
+        },
+        {
+            "name": "Disassembly Preview",
+            "description": "Disassemble main function (preview)",
+            "type": "tool",
+            "tool": "objdump",
+            "args": [
+                "-d",
+                "-M",
+                "intel",
+                "--no-show-raw-insn",
+                "{target}"
+            ],
+            "timeout": 60,
+            "optional": true
+        }
+    ]
+}

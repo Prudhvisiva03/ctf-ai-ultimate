@@ -1,0 +1,119 @@
+{
+    "name": "Generic Analysis (Deep Scan)",
+    "description": "Exhaustive analysis: file identification, strings, metadata, archive extraction, and file carving",
+    "category": "forensics",
+    "file_types": [
+        "*"
+    ],
+    "execution_strategy": "sequential",
+    "methods": [
+        {
+            "name": "File Identification",
+            "description": "Identify file type and MIME encoding",
+            "type": "tool",
+            "tool": "file",
+            "args": [
+                "-b",
+                "--mime-type",
+                "{target}"
+            ],
+            "timeout": 10
+        },
+        {
+            "name": "Strings (Analysis)",
+            "description": "Extract all printable strings (min length 6)",
+            "type": "tool",
+            "tool": "strings",
+            "args": [
+                "-n",
+                "6",
+                "{target}"
+            ],
+            "timeout": 60
+        },
+        {
+            "name": "Hexdump Header",
+            "description": "Inspect the first 256 bytes for magic numbers",
+            "type": "tool",
+            "tool": "xxd",
+            "args": [
+                "-l",
+                "256",
+                "{target}"
+            ],
+            "timeout": 10,
+            "optional": true
+        },
+        {
+            "name": "Metadata Extraction",
+            "description": "Extract all metadata with ExifTool",
+            "type": "tool",
+            "tool": "exiftool",
+            "args": [
+                "-a",
+                "-u",
+                "-g1",
+                "{target}"
+            ],
+            "timeout": 30
+        },
+        {
+            "name": "Binwalk Embedded File Scan",
+            "description": "Scan for embedded files/firmware images",
+            "type": "tool",
+            "tool": "binwalk",
+            "args": [
+                "--run-as=root",
+                "-e",
+                "-C",
+                "output/_extracted",
+                "{target}"
+            ],
+            "timeout": 120,
+            "optional": true
+        },
+        {
+            "name": "Foremost Carving",
+            "description": "Carve files based on headers/footers",
+            "type": "tool",
+            "tool": "foremost",
+            "args": [
+                "-i",
+                "{target}",
+                "-o",
+                "output/_foremost",
+                "-v"
+            ],
+            "timeout": 60,
+            "optional": true
+        },
+        {
+            "name": "Grep for Flags",
+            "description": "Search for common flag formats directly in binary",
+            "type": "tool",
+            "tool": "grep",
+            "args": [
+                "-a",
+                "-i",
+                "flag\\|ctf\\|key\\|pass",
+                "{target}"
+            ],
+            "timeout": 30,
+            "optional": true
+        },
+        {
+            "name": "Archive Extraction (7z)",
+            "description": "Attempt blindly extracting as archive",
+            "type": "tool",
+            "tool": "7z",
+            "args": [
+                "x",
+                "{target}",
+                "-ooutput/_extracted/generic_out",
+                "-y"
+            ],
+            "timeout": 60,
+            "optional": true
+        }
+    ]
+}

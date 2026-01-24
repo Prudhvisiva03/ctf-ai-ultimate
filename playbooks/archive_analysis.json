@@ -1,0 +1,70 @@
+{
+    "name": "Archive Analysis (Deep Recursion)",
+    "description": "Recursively extract and scan all nested archives",
+    "category": "forensics",
+    "file_types": [
+        ".zip",
+        ".tar",
+        ".gz",
+        ".tgz",
+        ".rar",
+        ".7z",
+        ".bz2",
+        ".xz"
+    ],
+    "execution_strategy": "sequential",
+    "methods": [
+        {
+            "name": "Universal Extract (7z)",
+            "description": "Try extracting with 7zip (handles most formats)",
+            "type": "tool",
+            "tool": "7z",
+            "args": [
+                "x",
+                "{target}",
+                "-ooutput/_extracted/{filename}_out",
+                "-y"
+            ],
+            "timeout": 120
+        },
+        {
+            "name": "Unzip (Fallback)",
+            "description": "Standard unzip for compatibility",
+            "type": "tool",
+            "tool": "unzip",
+            "args": [
+                "-o",
+                "{target}",
+                "-d",
+                "output/_extracted/{filename}_unzip"
+            ],
+            "timeout": 60,
+            "optional": true
+        },
+        {
+            "name": "Zip Details",
+            "description": "Check for zip comments and details",
+            "type": "tool",
+            "tool": "zipdetails",
+            "args": [
+                "-v",
+                "{target}"
+            ],
+            "timeout": 30,
+            "optional": true
+        },
+        {
+            "name": "Recursive Grep",
+            "description": "Search for flags in all extracted files",
+            "type": "tool",
+            "tool": "grep",
+            "args": [
+                "-r",
+                "flag",
+                "output/_extracted/"
+            ],
+            "timeout": 60,
+            "optional": true
+        }
+    ]
+}
