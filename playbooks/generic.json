@@ -40,6 +40,22 @@
             "timeout": 60
         },
         {
+            "name": "Network Intelligence",
+            "description": "Extract IPs, URLs, emails, credentials, hashes",
+            "type": "module",
+            "module": "network_extractor",
+            "timeout": 30,
+            "optional": true
+        },
+        {
+            "name": "Crypto Analysis",
+            "description": "Auto-detect and decode Base64, Hex, ROT13, Caesar, etc.",
+            "type": "module",
+            "module": "crypto_analyzer",
+            "timeout": 30,
+            "optional": true
+        },
+        {
             "name": "Hexdump Header",
             "description": "Inspect the first 256 bytes for magic numbers",
             "type": "tool",
