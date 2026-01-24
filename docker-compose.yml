@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  ctf-ai:
+    build: .
+    container_name: ctf-ai-ultimate
+    volumes:
+      - ./challenges:/challenges
+      - ./output:/app/output
+      - ./config.json:/app/config.json
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+      - CLAUDE_API_KEY=${CLAUDE_API_KEY:-}
+      - GROQ_API_KEY=${GROQ_API_KEY:-}
+    stdin_open: true
+    tty: true
+    networks:
+      - ctf-network
+
+networks:
+  ctf-network:
+    driver: bridge

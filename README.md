@@ -81,6 +81,12 @@ sudo ./install.sh
 ctf-ai
 ```
 
+### **Documentation & Guides**
+- 🐳 **[Docker Guide](DOCKER.md)** - Run in a container
+- ❓ **[FAQ](FAQ.md)** - Frequently Asked Questions
+- 🛡️ **[Security Policy](SECURITY.md)** - Responsible use
+- 🏫 **[Examples](examples/README.md)** - Learn with walkthroughs
+
 ### **First Run**
 
 ```bash
