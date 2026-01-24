@@ -114,7 +114,7 @@ class Reporter:
         report_lines.append("\n\n[RECOMMENDED NEXT STEPS]")
         report_lines.append("-" * 80)
         
-        recommendations = self._generate_recommendations(scan_results)
+        recommendations = self._generate_recommendations(scan_results, target)
         for i, rec in enumerate(recommendations, 1):
             report_lines.append(f"{i}. {rec}")
         
@@ -141,7 +141,7 @@ class Reporter:
             },
             'flags': self._collect_all_flags(scan_results),
             'scan_results': scan_results,
-            'recommendations': self._generate_recommendations(scan_results)
+            'recommendations': self._generate_recommendations(scan_results, target)
         }
     
     def _generate_summary(self, scan_results):
@@ -262,7 +262,7 @@ class Reporter:
         
         return extracted
     
-    def _generate_recommendations(self, scan_results):
+    def _generate_recommendations(self, scan_results, target="<file>"):
         """Generate intelligent recommendations based on findings"""
         recommendations = []
         
@@ -282,86 +282,99 @@ class Reporter:
             for key, value in (metadata.items() if isinstance(metadata, dict) else []):
                 if isinstance(value, str) and re.search(base64_pattern, value):
                     recommendations.append(f"🔍 HINT: Found Base64-like string in {key}: '{value[:50]}...'")
-                    recommendations.append(f"   → Try: echo '{value}' | base64 -d")
-                    recommendations.append(f"   → If it's a password hint, try decoding and using with steghide/stegseek")
+                    recommendations.append(f"   💻 COMMAND: echo '{value}' | base64 -d")
+                    recommendations.append(f"   💻 COMMAND: steghide extract -sf {target} -p $(echo '{value}' | base64 -d)")
         
         # Check for steghide-protected files
         if 'stego_findings' in scan_results or any('steghide' in str(v).lower() for v in str(scan_results).split()):
             if 'could not extract' in str(scan_results).lower():
                 recommendations.append("🔍 HINT: Steghide data detected but needs a password")
-                recommendations.append("   → Check EXIF metadata for password hints")
-                recommendations.append("   → Try common passwords: password, admin, flag, secret")
-                recommendations.append("   → Use stegseek with rockyou.txt wordlist")
+                recommendations.append(f"   💻 COMMAND: steghide extract -sf {target} -p password")
+                recommendations.append(f"   💻 COMMAND: stegseek {target} /usr/share/wordlists/rockyou.txt")
         
         # Check for embedded files
         if 'embedded_files' in scan_results and scan_results['embedded_files']:
             count = len(scan_results['embedded_files'])
             recommendations.append(f"🔍 HINT: Found {count} embedded file signature(s)")
-            recommendations.append("   → Use binwalk -e or foremost to extract")
-            recommendations.append("   → Analyze extracted files individually")
+            recommendations.append(f"   💻 COMMAND: binwalk -e {target}")
+            recommendations.append(f"   💻 COMMAND: foremost -i {target} -o output_carved")
         
         # Check for encoded data patterns
         output_str = str(scan_results).lower()
         if 'hex' in output_str or 'base64' in output_str or 'base32' in output_str:
             recommendations.append("🔍 HINT: Encoded data detected in output")
-            recommendations.append("   → Try CyberChef or online decoders")
-            recommendations.append("   → Look for multi-layer encoding")
+            recommendations.append(f"   💻 COMMAND: strings {target} | grep -E '[A-Za-z0-9+/]{{20,}}' | base64 -d")
+            recommendations.append(f"   💻 COMMAND: xxd -p {target} | tr -d '\\n' | xxd -r -p")
         
         # Archive-specific
         if 'archive_type' in scan_results:
             recommendations.append("🔍 HINT: Archive file detected")
-            recommendations.append("   → Extract and scan each file individually")
-            recommendations.append("   → Check for password-protected files")
-            recommendations.append("   → Look for hidden files (ls -la)")
+            recommendations.append(f"   💻 COMMAND: 7z x {target}")
+            recommendations.append(f"   💻 COMMAND: unzip -l {target}")
+            recommendations.append(f"   💻 COMMAND: tar -tvf {target}")
         
         # Image-specific (PNG/JPG)
         if any(ext in str(scan_results.get('file_type', '')).lower() for ext in ['png', 'jpeg', 'jpg']):
             recommendations.append("🔍 HINT: Image file - try these techniques:")
-            recommendations.append("   → LSB steganography: zsteg (PNG), stegsolve")
-            recommendations.append("   → Metadata: exiftool, strings")
-            recommendations.append("   → Visual analysis: Open the image and look carefully")
-            recommendations.append("   → Color channel analysis: stegsolve, PIL")
+            recommendations.append(f"   💻 COMMAND: zsteg -a {target}  # For PNG")
+            recommendations.append(f"   💻 COMMAND: exiftool {target}")
+            recommendations.append(f"   💻 COMMAND: steghide extract -sf {target} -p ''")
+            recommendations.append(f"   💻 COMMAND: strings {target} | grep -i flag")
         
         # Binary-specific
         if 'checksec' in scan_results or 'elf' in str(scan_results.get('file_type', '')).lower():
             recommendations.append("🔍 HINT: Binary file detected")
-            recommendations.append("   → Run the binary and observe behavior")
-            recommendations.append("   → Use ltrace/strace to see system calls")
-            recommendations.append("   → Decompile with Ghidra or radare2")
-            recommendations.append("   → Check for hardcoded strings or XOR encoding")
+            recommendations.append(f"   💻 COMMAND: ./{target}")
+            recommendations.append(f"   💻 COMMAND: ltrace ./{target}")
+            recommendations.append(f"   💻 COMMAND: strings {target} | grep -E '(flag|FLAG|picoCTF)'")
+            recommendations.append(f"   💻 COMMAND: objdump -d {target} | less")
         
         # PCAP-specific
-        if 'tcp_streams' in scan_results or 'pcap' in str(scan_results.get('file_type', '')).lower():
+        if 'tcp_streams' in scan_results or 'pcap' in str(scan_results.get('file_type', '')).lower()):
             recommendations.append("🔍 HINT: Network capture detected")
-            recommendations.append("   → Follow TCP streams in Wireshark")
-            recommendations.append("   → Export HTTP objects (File → Export Objects → HTTP)")
-            recommendations.append("   → Look for suspicious DNS queries")
-            recommendations.append("   → Check for data exfiltration in ICMP/DNS")
+            recommendations.append(f"   💻 COMMAND: wireshark {target}")
+            recommendations.append(f"   💻 COMMAND: tshark -r {target} -Y http -T fields -e http.request.uri")
+            recommendations.append(f"   💻 COMMAND: tshark -r {target} -Y dns -T fields -e dns.qry.name")
+            recommendations.append(f"   💻 COMMAND: tcpflow -r {target}")
         
         # PDF-specific
         if 'pdf' in str(scan_results.get('file_type', '')).lower():
             recommendations.append("🔍 HINT: PDF file detected")
-            recommendations.append("   → Extract text: pdftotext")
-            recommendations.append("   → Check for embedded files: pdfdetach -list")
-            recommendations.append("   → Analyze JavaScript: pdf-parser")
+            recommendations.append(f"   💻 COMMAND: pdftotext {target} output.txt")
+            recommendations.append(f"   💻 COMMAND: pdfdetach -list {target}")
+            recommendations.append(f"   💻 COMMAND: strings {target} | grep -i flag")
         
         # Web-specific
         if 'html_analysis' in scan_results:
             html = scan_results['html_analysis']
             if html.get('comments'):
                 recommendations.append(f"🔍 HINT: Found {len(html['comments'])} HTML comment(s)")
-                recommendations.append("   → Check comments for hints or encoded data")
+                recommendations.append(f"   💻 COMMAND: grep -o '<!--.*-->' {target}")
             if html.get('hidden_inputs'):
                 recommendations.append(f"🔍 HINT: Found {len(html['hidden_inputs'])} hidden input(s)")
-                recommendations.append("   → Inspect hidden form fields")
+                recommendations.append(f"   💻 COMMAND: grep 'type=\"hidden\"' {target}")
         
-        # Generic fallback
+        # Generic fallback - FILE CORRUPTION CHECK
+        if not recommendations and scan_results.get('file_type') == 'data':
+            recommendations.append("🔍 HINT: File appears corrupted or has wrong header")
+            recommendations.append(f"   💻 COMMAND: xxd -l 32 {target}  # Check first 32 bytes")
+            recommendations.append(f"   💻 COMMAND: file {target}")
+            recommendations.append(f"   💻 COMMAND: binwalk {target}")
+            # Add specific repair commands for common formats
+            recommendations.append("   ")
+            recommendations.append("   🔧 If it's a corrupted JPEG (look for JFIF in hex):")
+            recommendations.append(f"   💻 COMMAND: printf '\\xff\\xd8\\xff' | dd of={target} bs=1 count=3 conv=notrunc")
+            recommendations.append("   ")
+            recommendations.append("   🔧 If it's a corrupted PNG (look for PNG in hex):")
+            recommendations.append(f"   💻 COMMAND: printf '\\x89PNG\\r\\n\\x1a\\n' | dd of={target} bs=1 count=8 conv=notrunc")
+        
+        # Final fallback
         if not recommendations:
-            recommendations.append("🔍 No obvious clues found. Try these general techniques:")
-            recommendations.append("   → Run 'strings' and grep for patterns")
-            recommendations.append("   → Check file with 'binwalk' for hidden data")
-            recommendations.append("   → Try online tools: CyberChef, dcode.fr")
-            recommendations.append("   → Manual inspection is often key!")
+            recommendations.append("🔍 No obvious clues found. Try these commands:")
+            recommendations.append(f"   💻 COMMAND: strings {target} | grep -iE '(flag|ctf|pico)'")
+            recommendations.append(f"   💻 COMMAND: binwalk -e {target}")
+            recommendations.append(f"   💻 COMMAND: xxd {target} | less")
+            recommendations.append(f"   💻 COMMAND: file {target}")
         
         return recommendations
     
