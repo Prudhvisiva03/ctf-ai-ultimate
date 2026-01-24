@@ -28,13 +28,14 @@ CTF-AI Ultimate is a revolutionary AI-powered CTF analysis tool that combines:
 
 ### 🧠 **AI-Powered Intelligence**
 - **Multi-AI Support**: OpenAI (GPT-4), Ollama (FREE), Claude, Groq
+- **Deep Scan Mode**: Exhaustive analysis with recursive extraction, file carving, and multi-tool verification
 - **Smart Challenge Analysis**: AI determines the best approach
 - **Adaptive Execution**: Tries different methods if first approach fails  
 - **Learning Mode**: Shows reasoning so you understand what's happening
 
-### 🎯 **Challenge-Specific Playbooks**
+### 🎯 **Challenge-Specific Deep Scans**
 Every CTF type has its own battle-tested workflow:
-- **PNG Steganography** → zsteg + LSB + binwalk + stegh
+- **PNG Steganography** → zsteg (all planes) + chunks check + metadata + strings (ASCII/Wide) + binwalk + foremost + steghide
 
 ide
 - **JPEG Stego** → steghide + stegseek + EXIF + brute-force

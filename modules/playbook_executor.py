@@ -268,9 +268,15 @@ class PlaybookExecutor:
         except subprocess.TimeoutExpired:
             return {'success': False, 'error': 'Tool execution timeout'}
         except FileNotFoundError:
+            if method.get('optional', False):
+                print(f"    ⚠️  Optional tool not found: {tool_name} (skipping)")
+                return {'success': True, 'output': '', 'flags': [], 'findings': []}
             print(f"    ⚠️  Tool not found: {tool_name}")
             return {'success': False, 'error': f'Tool not installed: {tool_name}'}
         except Exception as e:
+            if method.get('optional', False):
+                print(f"    ⚠️  Optional method failed: {str(e)} (skipping)")
+                return {'success': True, 'output': '', 'flags': [], 'findings': []}
             return {'success': False, 'error': str(e)}
     
     def _execute_module(self, method: Dict, target: str) -> Dict:
