@@ -17,78 +17,80 @@ fi
 echo "[*] Updating package lists..."
 apt-get update -qq
 
+# System dependencies
 echo ""
 echo "[*] Installing system dependencies..."
-
-# Core tools
-apt-get install -y -qq \
+sudo apt-get install -y \
     python3 \
     python3-pip \
     python3-magic \
     file \
     binwalk \
     exiftool \
-    strings \
+    binutils \
     foremost
 
 # Steganography tools
 echo ""
 echo "[*] Installing steganography tools..."
-apt-get install -y -qq \
+sudo apt-get install -y \
     steghide \
-    stegseek \
-    zsteg
+    stegseek
+
+# Install zsteg via Ruby gem (not in apt)
+echo ""
+echo "[*] Installing zsteg via Ruby gem..."
+sudo gem install zsteg 2>/dev/null || echo "⚠️  zsteg installation skipped (needs Ruby). Install with: sudo gem install zsteg"
 
 # Archive tools
 echo ""
 echo "[*] Installing archive tools..."
-apt-get install -y -qq \
+sudo apt-get install -y \
     unzip \
     tar \
     gzip \
     bzip2 \
     p7zip-full \
-    unrar
+    unrar-free
 
-# Network analysis tools
+# Network analysis
 echo ""
 echo "[*] Installing network analysis tools..."
-apt-get install -y -qq \
+sudo apt-get install -y \
     tshark \
     wireshark-common \
     tcpdump
 
-# Binary analysis tools
+# Binary analysis
 echo ""
 echo "[*] Installing binary analysis tools..."
-apt-get install -y -qq \
-    binutils \
+sudo apt-get install -y \
     checksec \
     gdb \
     radare2 \
     ltrace \
     strace
 
-# PDF tools
+# PDF tools (poppler-utils contains pdfinfo and pdftotext)
 echo ""
 echo "[*] Installing PDF analysis tools..."
-apt-get install -y -qq \
-    poppler-utils \
-    pdfinfo
+sudo apt-get install -y \
+    poppler-utils
 
-# Web tools (optional)
+# Web tools
 echo ""
 echo "[*] Installing web reconnaissance tools..."
-apt-get install -y -qq \
+sudo apt-get install -y \
     curl \
     wget \
     nikto \
     dirsearch 2>/dev/null || echo "[!] dirsearch not available in repos (install manually if needed)"
 
-# Python dependencies
+# Install Python packages
 echo ""
 echo "[*] Installing Python dependencies..."
-pip3 install -r requirements.txt --quiet
+pip3 install -r requirements.txt --break-system-packages --quiet || \
+    echo "⚠️  Python packages installation failed. Try: pip3 install -r requirements.txt --break-system-packages"
 
 # Make scripts executable
 echo ""
