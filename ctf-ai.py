@@ -37,7 +37,7 @@ class CTF_AI_Assistant:
         self.ai_engine = AIEngine(self.config)
         self.playbook_executor = PlaybookExecutor(self.config)
         self.file_scanner = FileScanner(self.config)
-        self.reporter = Reporter(self.config)
+        # Reporter will be created per-challenge with unique output dir
         
         self.session_history = []
         
@@ -322,12 +322,15 @@ class CTF_AI_Assistant:
         else:
             print("\n⚠️  No flags found in this session.")
         
-        # Step 5: Generate report (for the initial file)
+        # Step 5: Generate report (for the initial file) with unique output directory
         report_data = {
             'sub_analyses': all_results,
             'challenge_info': challenge_info
         }
-        self.reporter.generate_report(report_data, initial_target)
+        
+        # Create reporter with unique output directory for this challenge
+        reporter = Reporter(self.config, challenge_name=initial_target)
+        reporter.generate_report(report_data, initial_target)
         
         print("\n✅ Done! Check the 'output' directory.")
         print("")
@@ -377,6 +380,11 @@ class CTF_AI_Assistant:
     def select_playbook_by_extension(self, file_info: dict) -> str:
         """Simple playbook selection based on file extension"""
         ext = file_info.get('extension', '').lower()
+        file_type = file_info.get('type', '').lower()
+        
+        # Check file type for disk images (they often have no extension)
+        if any(keyword in file_type for keyword in ['boot sector', 'filesystem', 'disk image', 'fat', 'ntfs', 'ext2', 'ext3', 'ext4']):
+            return 'disk_forensics'
         
         mapping = {
             '.png': 'png_stego',
@@ -392,6 +400,11 @@ class CTF_AI_Assistant:
             '.pcapng': 'pcap_analysis',
             '.pdf': 'pdf_forensics',
             '.elf': 'binary_analysis',
+            '.dd': 'disk_forensics',
+            '.img': 'disk_forensics',
+            '.raw': 'disk_forensics',
+            '.vmdk': 'disk_forensics',
+            '.vdi': 'disk_forensics',
             '': 'binary_analysis'
         }
         

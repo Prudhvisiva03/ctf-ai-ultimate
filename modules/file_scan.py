@@ -154,6 +154,21 @@ class FileScanner:
                     'message': f'Extracted files to {extract_dir}',
                     'status': 'success'
                 })
+                
+                # ✅ AUTO-SCAN EXTRACTED FILES FOR FLAGS
+                print("[*] Auto-scanning extracted files for flags...")
+                extracted_flags = self.scan_extracted_files(extract_dir)
+                if extracted_flags:
+                    print(f"🎉 FOUND {len(extracted_flags)} FLAG(S) IN EXTRACTED FILES!")
+                    for flag in extracted_flags:
+                        print(f"   🚩 {flag}")
+                    self.findings.append({
+                        'type': 'flag_found',
+                        'flags': extracted_flags,
+                        'location': 'extracted_files',
+                        'status': 'success'
+                    })
+                
                 return True
                 
         except Exception as e:
@@ -164,6 +179,40 @@ class FileScanner:
             })
             
         return False
+    
+    def scan_extracted_files(self, extract_dir):
+        """Scan all extracted files for flags using strings"""
+        flags = []
+        
+        if not os.path.exists(extract_dir):
+            return flags
+        
+        print(f"   ↳ Scanning directory: {extract_dir}")
+        
+        # Walk through all extracted files
+        for root, dirs, files in os.walk(extract_dir):
+            for file in files:
+                filepath = os.path.join(root, file)
+                try:
+                    # Run strings on each file
+                    proc = subprocess.run(
+                        ['strings', filepath],
+                        capture_output=True,
+                        text=True,
+                        timeout=10
+                    )
+                    
+                    if proc.returncode == 0:
+                        # Search for flags in strings output
+                        found_flags = self.search_flags(proc.stdout)
+                        if found_flags:
+                            print(f"   ✅ Found flag(s) in: {os.path.basename(filepath)}")
+                            flags.extend(found_flags)
+                            
+                except Exception as e:
+                    continue  # Skip files that cause errors
+        
+        return list(set(flags))  # Remove duplicates
 
     def check_and_decode_base64(self, filepath):
         """Check for and decode large Base64 blobs"""

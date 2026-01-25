@@ -5,14 +5,31 @@ Generates comprehensive scan reports in TXT and JSON formats
 
 import json
 import os
+import re
 from datetime import datetime
 
 
 class Reporter:
-    def __init__(self, config):
+    def __init__(self, config, challenge_name=None):
         self.config = config
-        self.output_dir = config.get('output_directory', 'output')
+        base_output_dir = config.get('output_directory', 'output')
+        
+        # Create unique output directory for each challenge
+        if challenge_name:
+            # Sanitize challenge name (remove path, extension, special chars)
+            safe_name = os.path.splitext(os.path.basename(challenge_name))[0]
+            safe_name = re.sub(r'[^\w\-]', '_', safe_name)
+            
+            # Add timestamp for uniqueness
+            timestamp = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+            unique_dir = f"{safe_name}_{timestamp}"
+            
+            self.output_dir = os.path.join(base_output_dir, unique_dir)
+        else:
+            self.output_dir = base_output_dir
+            
         os.makedirs(self.output_dir, exist_ok=True)
+        print(f"[*] Output directory: {self.output_dir}")
         
     def generate_report(self, scan_results, target):
         """Generate comprehensive report"""
