@@ -7,7 +7,7 @@ tools:
   - grep
   - unzip
 
-steps:
+methods:
   - name: Unzip APK
     tool: unzip
     command: unzip -o {target} -d {output}/unzipped
