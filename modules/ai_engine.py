@@ -180,11 +180,14 @@ You are an expert CTF solver. I have a challenge file ('message.txt') with the f
 Challenge Description:
 {challenge_description}
 
+
 Write a complete, standalone Python 3 script to SOLVE this challenge and print the flag.
 The script should:
 1. Parse the values (n, e, c) cleanly from the file 'message.txt'. 
    (The file usually contains "n = ...", "e = ...", "c = ...". Use regex or key-value splitting to be robust. Do NOT assume line order.)
-2. Handle the specific math/logic required
+2. Handle the specific math/logic required.
+   - For Large Integers: Use `gmpy2` if available, or `math.isqrt()` / `pow(a,b,n)`. DO NOT use `math.sqrt()` or floats on 2048-bit numbers.
+   - If e is small (e.g. 3, 17, 20), check for Small Message Attack (integer root of c).
 3. Print the flag clearly
 
 Return ONLY the Python code block (inside ```python ... ```).
