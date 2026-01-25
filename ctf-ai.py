@@ -311,12 +311,12 @@ class CTF_AI_Assistant:
                             is_text = not b'\x00' in content
                 except: pass
 
-                if self.challenge_description and is_text:
+                if description and is_text:
                     print("⚡ Smart Solver Activated: Analyzing problem description & file content...")
                     with open(current_target, 'r', errors='ignore') as f:
                         file_content = f.read()
                     
-                    solver_script = self.ai_engine.generate_solver_script(self.challenge_description, file_content)
+                    solver_script = self.ai_engine.generate_solver_script(description, file_content)
                     
                     if solver_script:
                         print("\n📜 AI Generated Solver Script:")
