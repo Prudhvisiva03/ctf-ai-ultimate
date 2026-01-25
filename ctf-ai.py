@@ -543,11 +543,7 @@ Examples:
         help='Force interactive mode'
     )
     
-    parser.add_argument(
-        '--description', '-d',
-        metavar='TEXT',
-        help='Challenge description/hint to include in report'
-    )
+
     
     args = parser.parse_args()
     
