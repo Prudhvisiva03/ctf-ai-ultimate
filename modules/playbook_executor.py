@@ -31,13 +31,26 @@ class PlaybookExecutor:
             print(f"⚠️  Playbooks directory not found: {playbooks_path}")
             return self._get_default_playbooks()
         
-        # Load each playbook JSON file
-        for playbook_file in playbooks_path.glob('*.json'):
+        # Load each playbook file (JSON and YAML)
+        extensions = ['*.json', '*.yaml', '*.yml']
+        files = []
+        for ext in extensions:
+            files.extend(playbooks_path.glob(ext))
+            
+        for playbook_file in files:
             try:
                 with open(playbook_file, 'r') as f:
                     playbook_name = playbook_file.stem
-                    playbooks[playbook_name] = json.load(f)
+                    
+                    if playbook_file.suffix == '.json':
+                        playbooks[playbook_name] = json.load(f)
+                    else:
+                        import yaml
+                        playbooks[playbook_name] = yaml.safe_load(f)
+                        
                     print(f"[+] Loaded playbook: {playbook_name}")
+            except ImportError:
+                print(f"⚠️  PyYAML not installed, skipping {playbook_file.name}. Run: pip install PyYAML")
             except Exception as e:
                 print(f"⚠️  Failed to load {playbook_file}: {e}")
                 import traceback
