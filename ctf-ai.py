@@ -302,9 +302,71 @@ class CTF_AI_Assistant:
                 # Step 2: AI analysis
                 print("\n🤖 Step 2: AI analyzing challenge type...")
                 
-                # Pass scan findings to AI
+                # Check for Smart Solver requirements (Description + Text File)
+                is_text = False
+                try:
+                    if file_info.get('size', 0) < 20000: # Max 20KB for code generation
+                        with open(current_target, 'rb') as f:
+                            content = f.read(512)
+                            is_text = not b'\x00' in content
+                except: pass
+
+                if self.challenge_description and is_text:
+                    print("⚡ Smart Solver Activated: Analyzing problem description & file content...")
+                    with open(current_target, 'r', errors='ignore') as f:
+                        file_content = f.read()
+                    
+                    solver_script = self.ai_engine.generate_solver_script(self.challenge_description, file_content)
+                    
+                    if solver_script:
+                        print("\n📜 AI Generated Solver Script:")
+                        print("-" * 40)
+                        lines = solver_script.splitlines()
+                        for i, line in enumerate(lines[:10]):
+                            print(f"{i+1:3}: {line}")
+                        if len(lines) > 10: print(f"... ({len(lines)-10} more lines)")
+                        print("-" * 40)
+                        
+                        # Save and Run
+                        solver_path = os.path.join(self.config['output_directory'], 'ai_solver.py')
+                        os.makedirs(self.config['output_directory'], exist_ok=True)
+                        with open(solver_path, 'w') as f:
+                            f.write(solver_script)
+                            
+                        print(f"[*] Executing solver: {solver_path}")
+                        try:
+                            # Run the generated script
+                            result = subprocess.run(
+                                [sys.executable, solver_path],
+                                capture_output=True,
+                                text=True,
+                                timeout=30
+                            )
+                            
+                            print("\n📝 Solver Output:")
+                            print(result.stdout)
+                            if result.stderr:
+                                print(f"⚠️ Error: {result.stderr}")
+                                
+                            # Check for flags in output
+                            generated_flags = []
+                            for line in result.stdout.splitlines():
+                                found = self.file_scanner.search_flags(line)
+                                if found:
+                                    generated_flags.extend(found)
+                            
+                            if generated_flags:
+                                print(f"🎉 OPENAI SOLVED IT! Found {len(generated_flags)} flag(s)!")
+                                results = {'flags': generated_flags, 'status': 'success'}
+                                all_results.append(results)
+                                # Skip normal playbook execution if solved
+                                continue 
+                                
+                        except Exception as e:
+                            print(f"⚠️  Solver execution failed: {e}")
+
+                # Regular Playbook Analysis
                 file_info['scan_findings'] = scan_results.get('findings', [])
-                
                 analysis = self.ai_engine.analyze_challenge(file_info)
                 playbook_name = analysis.get('recommended_playbook', 'generic')
                 print(f"   Strategy: {playbook_name} ({analysis.get('confidence', 0)*100:.0f}%)")

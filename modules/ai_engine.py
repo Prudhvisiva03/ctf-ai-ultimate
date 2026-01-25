@@ -158,6 +158,54 @@ class AIEngine:
             print(f"⚠️  AI suggestion failed: {e}")
             return {'stop': True, 'reasoning': str(e)}
     
+    
+    def generate_solver_script(self, challenge_description: str, file_content: str) -> str:
+        """
+        Generate a Python solver script for the challenge
+        """
+        if not self.is_available():
+            return ""
+
+        prompt = f"""
+You are an expert CTF solver. I have a challenge file with the following content:
+
+--- START FILE CONTENT ---
+{file_content[:5000]}  # Truncated if too long
+--- END FILE CONTENT ---
+
+Challenge Description:
+{challenge_description}
+
+Write a complete, standalone Python 3 script to SOLVE this challenge and print the flag.
+The script should:
+1. Be self-contained (imports included)
+2. Handle the specific math/logic required (e.g. RSA, XOR, etc.)
+3. Print the flag clearly
+4. NOT require external files if possible (embed the numbers directly)
+
+Return ONLY the Python code block (inside ```python ... ```).
+"""
+        
+        try:
+            response = self._query_ai(prompt, system_prompt="You are a Capture The Flag expert. Write python scripts to solve challenges.")
+            
+            # Extract code block
+            import re
+            code_match = re.search(r'```python(.*?)```', response, re.DOTALL)
+            if code_match:
+                return code_match.group(1).strip()
+            
+            # Fallback checks
+            code_match = re.search(r'```(.*?)```', response, re.DOTALL)
+            if code_match:
+                return code_match.group(1).strip()
+                
+            return response.strip()  # Return raw if no blocks
+            
+        except Exception as e:
+            print(f"⚠️  AI solver generation failed: {e}")
+            return ""
+
     def interpret_tool_output(self, tool_name: str, output: str) -> Dict:
         """
         Interpret tool output using AI
