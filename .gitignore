@@ -51,3 +51,4 @@ Thumbs.db
 config_personal.json
 *.key
 *.pem
+config.json
