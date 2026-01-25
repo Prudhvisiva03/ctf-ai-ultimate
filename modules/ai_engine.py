@@ -182,7 +182,8 @@ Challenge Description:
 
 Write a complete, standalone Python 3 script to SOLVE this challenge and print the flag.
 The script should:
-1. Parse the values (n, e, c) cleanly from the file 'message.txt' (or the provided content string)
+1. Parse the values (n, e, c) cleanly from the file 'message.txt'. 
+   (The file usually contains "n = ...", "e = ...", "c = ...". Use regex or key-value splitting to be robust. Do NOT assume line order.)
 2. Handle the specific math/logic required
 3. Print the flag clearly
 
