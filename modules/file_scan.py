@@ -346,12 +346,112 @@ class FileScanner:
                     if 'flags' not in scan_results: scan_results['flags'] = []
                     scan_results['flags'].extend(image_findings['flags'])
         
+        # 6. Advanced Disk Image Scan (Partition Analysis)
+        if any(x in file_type['mime'] for x in ['octet-stream', 'x-dosexec']) or filepath.endswith(('.dd', '.img', '.raw')):
+            print("[*] Performing Advanced Disk Forensics (Partition Analysis)...")
+            partition_findings = self.scan_disk_partitions(filepath)
+            if partition_findings:
+                # Merge findings
+                if 'flags' not in scan_results: scan_results['flags'] = []
+                scan_results['flags'].extend(partition_findings.get('flags', []))
+                
         # Deduplicate flags
         if 'flags' in scan_results:
              scan_results['flags'] = list(set(scan_results['flags']))
              
         scan_results['findings'] = self.findings
         return scan_results
+
+    def scan_disk_partitions(self, filepath):
+        """Analyze disk partitions to isolate flags (avoids decoys)"""
+        results = {'flags': []}
+        try:
+            # 1. Run mmls to find partitions
+            # We use subprocess to check if mmls is available
+            try:
+                proc = subprocess.run(['mmls', filepath], capture_output=True, text=True)
+                if proc.returncode != 0:
+                    return results # mmls failed or not installed
+            except FileNotFoundError:
+                print("   ⚠️  'mmls' command not found, skipping partition analysis.")
+                return results
+
+            print("   ↳ Analyzing partition table...")
+            partitions = []
+            for line in proc.stdout.splitlines():
+                parts = line.split()
+                # Simple parser for mmls output looking for "Linux", "FAT", "NTFS" or generally valid partitions
+                if len(parts) > 5 and parts[0].strip().isdigit():
+                    # Format usually: Index Slot Start End Length Description
+                    # We try to identify the Description and Start/Len
+                    try:
+                        # Find where the numbers usually are (Start is typically the 3rd or 4th item depending on output format)
+                        # Standard TSK mmls: Slot Start End Len Description
+                        # finding start sector
+                        start = -1
+                        length = -1
+                        desc = "Unknown"
+                        
+                        # Heuristic: Find the first large integer that looks like a start sector
+                        number_indices = [i for i, p in enumerate(parts) if p.isdigit()]
+                        if len(number_indices) >= 3:
+                            start = int(parts[number_indices[-3]]) # 3rd to last number
+                            length = int(parts[number_indices[-1]]) # last number
+                            desc_idx = number_indices[-1] + 1
+                            desc = " ".join(parts[desc_idx:])
+                        
+                        if start > 0 and length > 0:
+                            partitions.append({'start': start, 'length': length, 'desc': desc})
+                    except:
+                        continue
+
+            if not partitions:
+                print("   ⚠️  No partitions found or parsing failed.")
+                return results
+
+            print(f"   ✅ Found {len(partitions)} partitions. Scanning individually...")
+            
+            output_dir = self.config.get('output_directory', 'output')
+            parts_dir = os.path.join(output_dir, '_partitions')
+            os.makedirs(parts_dir, exist_ok=True)
+
+            for i, p in enumerate(partitions):
+                p_name = f"p{i}_{p['desc'].replace(' ', '_').replace('/', '-')}.dd"
+                p_path = os.path.join(parts_dir, p_name)
+                
+                print(f"      [P{i}] {p['desc']} (Start: {p['start']}) -> Extracting...")
+                
+                # Extract partition using dd
+                # standard sector size is 512
+                # dd if=image of=part skip=START count=LEN
+                subprocess.run([
+                    'dd', f'if={filepath}', f'of={p_path}', 
+                    'bs=512', f'skip={p["start"]}', f'count={p["length"]}'
+                ], capture_output=True)
+                
+                # Scan this partition
+                print(f"      ↳ Scanning {p_name} ...")
+                p_strings = self.run_strings(p_path)
+                p_flags = self.search_flags(p_strings)
+                
+                if p_flags:
+                    print(f"      🔥 FOUND {len(p_flags)} FLAG(S) IN PARTITION: {p['desc']}")
+                    for f in p_flags:
+                        print(f"         🚩 {f}")
+                        
+                    results['flags'].extend(p_flags)
+                    self.findings.append({
+                        'type': 'partition_flag',
+                        'partition': p['desc'],
+                        'flags': p_flags,
+                        'message': f"Found flags in partition {p['desc']}",
+                        'status': 'success'
+                    })
+
+        except Exception as e:
+            print(f"   ⚠️  Partition analysis error: {e}")
+            
+        return results
 
     def deep_image_scan(self, filepath):
         """Perform deep steganography and visual analysis on images"""
