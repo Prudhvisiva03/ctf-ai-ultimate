@@ -388,6 +388,16 @@ class CTF_AI_Assistant:
             # Step 3: Execute playbook
             # Only execute if it's not 'generic' OR we haven't found anything yet
             if playbook_name != 'generic' or len(analysis_queue) == 0:
+                # Initialize Tool Installer
+                from modules.tool_installer import ToolInstaller
+                installer = ToolInstaller(self.config)
+                
+                # Check tools for the selected playbook
+                playbook_file = os.path.join(os.path.dirname(__file__), 'playbooks', f"{playbook_name}.yaml")
+                if os.path.exists(playbook_file):
+                    print(f"🔧 Verifying tools for {playbook_name}...")
+                    installer.verify_playbook_tools(playbook_file)
+                
                 print(f"\n🚀 Executing playbook...")
                 
                 results = self.playbook_executor.execute_playbook(
