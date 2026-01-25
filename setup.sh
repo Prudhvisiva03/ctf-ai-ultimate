@@ -17,13 +17,19 @@ sudo apt install -y \
     python3-magic \
     binwalk \
     foremost \
-    exiftool \
+    libimage-exiftool-perl \
     steghide \
-    zsteg \
-    strings \
+    binutils \
     file \
     p7zip-full \
-    sleuthkit
+    sleuthkit \
+    ruby \
+    ruby-dev \
+    build-essential
+
+# Install zsteg via gem (Ruby package manager)
+echo "   Installing zsteg..."
+sudo gem install zsteg 2>/dev/null || echo "   ⚠️  zsteg install failed (optional)"
 
 # 2. Install Python packages
 echo "[2/5] Installing Python packages..."
