@@ -1,0 +1,44 @@
+name: apk_reversing
+description: Android APK Reverse Engineering and Forensics
+tools:
+  - apktool
+  - jadx
+  - strings
+  - grep
+  - unzip
+
+steps:
+  - name: Unzip APK
+    tool: unzip
+    command: unzip -o {target} -d {output}/unzipped
+    description: Extract APK as a standard ZIP archive to see assets
+
+  - name: Decode Resources (Apktool)
+    tool: apktool
+    command: apktool d {target} -o {output}/apktool_out -f
+    description: Disassemble bytecode and decode AndroidManifest.xml and resources
+
+  - name: Decompile to Java (Jadx)
+    tool: jadx
+    command: jadx -d {output}/jadx_out {target}
+    description: Decompile DEX to Java source code for analysis
+
+  - name: Search for Flag Patterns (Source Code)
+    tool: grep
+    command: grep -rE "flag\{|picoCTF\{|CTF\{" {output}/jadx_out
+    description: key search in decompiled Java code
+
+  - name: Search for Flag Patterns (Resources)
+    tool: grep
+    command: grep -rE "flag\{|picoCTF\{|CTF\{" {output}/apktool_out/res
+    description: Search in strings.xml and other resources
+
+  - name: Strings Check (DEX classes)
+    tool: strings
+    command: strings {target} | grep -iE "flag|ctf"
+    description: Quick check for hardcoded strings in classes.dex
+
+  - name: Manifest Analysis
+    tool: grep
+    command: grep -iE "flag|ctf" {output}/apktool_out/AndroidManifest.xml
+    description: Check manifest for suspicious metadata
