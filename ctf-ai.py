@@ -527,11 +527,9 @@ Examples:
         help='Directly solve a challenge file'
     )
     
-    parser.add_argument(
-        '--ai',
-        choices=['openai', 'ollama', 'claude', 'groq', 'none'],
-        help='AI provider to use'
-    )
+    parser.add_argument('--ai', choices=['openai', 'anthropic', 'gemini', 'ollama', 'groq', 'none'], 
+                      help='AI provider to use (overrides config)')
+    parser.add_argument('-d', '--description', help='Challenge description or hint')
     
     parser.add_argument(
         '--config',
