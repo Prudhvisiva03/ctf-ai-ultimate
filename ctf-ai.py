@@ -329,16 +329,25 @@ class CTF_AI_Assistant:
                         print("-" * 40)
                         
                         # Save and Run
-                        solver_path = os.path.join(self.config['output_directory'], 'ai_solver.py')
-                        os.makedirs(self.config['output_directory'], exist_ok=True)
+                        output_dir = self.config['output_directory']
+                        os.makedirs(output_dir, exist_ok=True)
+                        
+                        # Copy target file to output dir so script can find it
+                        import shutil
+                        target_filename = os.path.basename(current_target)
+                        local_target_path = os.path.join(output_dir, target_filename)
+                        shutil.copy2(current_target, local_target_path)
+                        
+                        solver_path = os.path.join(output_dir, 'ai_solver.py')
                         with open(solver_path, 'w') as f:
                             f.write(solver_script)
                             
                         print(f"[*] Executing solver: {solver_path}")
                         try:
-                            # Run the generated script
+                            # Run the generated script in the output directory
                             result = subprocess.run(
-                                [sys.executable, solver_path],
+                                [sys.executable, 'ai_solver.py'],
+                                cwd=output_dir, # Run INSIDE the output dir
                                 capture_output=True,
                                 text=True,
                                 timeout=30
