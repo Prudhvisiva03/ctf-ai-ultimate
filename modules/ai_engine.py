@@ -166,25 +166,25 @@ class AIEngine:
         if not self.is_available():
             return ""
 
-        # Limit content to prevent 400 errors
-        truncated_content = file_content[:2000] + "... (truncated)" if len(file_content) > 2000 else file_content
+        # Limit content DRASTICALLY to prevent 400 errors
+        # The AI doesn't need the full numbers, just the format
+        truncated_content = file_content[:500] + "\n... [TRUNCATED FOR BREVITY] ..." 
 
         prompt = f"""
-You are an expert CTF solver. I have a challenge file with the following content:
+You are an expert CTF solver. I have a challenge file ('message.txt') with the following format:
 
---- START FILE CONTENT ---
+--- START FILE SAMPLE ---
 {truncated_content}
---- END FILE CONTENT ---
+--- END FILE SAMPLE ---
 
 Challenge Description:
 {challenge_description}
 
 Write a complete, standalone Python 3 script to SOLVE this challenge and print the flag.
 The script should:
-1. Be self-contained (imports included)
-2. Handle the specific math/logic required (e.g. RSA, XOR, etc.)
+1. Parse the values (n, e, c) cleanly from the file 'message.txt' (or the provided content string)
+2. Handle the specific math/logic required
 3. Print the flag clearly
-4. NOT require external files if possible (embed the numbers directly)
 
 Return ONLY the Python code block (inside ```python ... ```).
 """
