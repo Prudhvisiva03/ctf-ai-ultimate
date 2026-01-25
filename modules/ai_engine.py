@@ -166,11 +166,14 @@ class AIEngine:
         if not self.is_available():
             return ""
 
+        # Limit content to prevent 400 errors
+        truncated_content = file_content[:2000] + "... (truncated)" if len(file_content) > 2000 else file_content
+
         prompt = f"""
 You are an expert CTF solver. I have a challenge file with the following content:
 
 --- START FILE CONTENT ---
-{file_content[:5000]}  # Truncated if too long
+{truncated_content}
 --- END FILE CONTENT ---
 
 Challenge Description:
