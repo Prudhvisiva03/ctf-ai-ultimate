@@ -278,58 +278,78 @@ class FileScanner:
             'findings': []
         }
         
-        # Run strings
+        # 1. Run strings (Basic)
         print("[*] Extracting strings...")
         strings = self.run_strings(filepath)
-        
-        # Search for flags in strings
         flags = self.search_flags(strings)
         if flags:
-            scan_results['flags'] = flags
+            print(f"🎉 FOUND {len(flags)} FLAG(S) IN RAW FILE!")
             for flag in flags:
-                print(f"✅ FLAG FOUND: {flag}")
+                print(f"   🚩 {flag}")
+            scan_results['flags'] = flags
         
-        # Run exiftool
-        print("[*] Extracting metadata...")
-        metadata = self.run_exiftool(filepath)
-        scan_results['metadata'] = metadata
-        
-        # Check metadata for flags
-        meta_flags = self.search_flags(str(metadata))
-        if meta_flags:
-            if 'flags' not in scan_results:
-                scan_results['flags'] = []
-            scan_results['flags'].extend(meta_flags)
-            for flag in meta_flags:
-                print(f"✅ FLAG FOUND IN METADATA: {flag}")
-        
-        # Run binwalk
+        # 2. Robust Archive Extraction & Scan (The Debug Script Logic)
+        mime = file_type['mime'].lower()
+        if any(x in mime for x in ['zip', 'compressed', 'archive', 'tar', 'gzip', 'bzip']):
+            print("[*] Detected archive! Attempting auto-extraction & scan...")
+            try:
+                output_dir = self.config.get('output_directory', 'output')
+                extract_dir = os.path.join(output_dir, '_extracted')
+                os.makedirs(extract_dir, exist_ok=True)
+                
+                # Try 7z extraction (Robust)
+                subprocess.run(['7z', 'x', filepath, f'-o{extract_dir}', '-y'], 
+                             capture_output=True, check=False)
+                
+                # Scan Extracted
+                found_in_archive = self.scan_extracted_files(extract_dir)
+                if found_in_archive:
+                    print(f"🎉 FOUND {len(found_in_archive)} FLAG(S) IN EXTRACTED ARCHIVE!")
+                    for flag in found_in_archive:
+                        print(f"   🚩 {flag}")
+                    
+                    # Merge findings
+                    if 'flags' not in scan_results: scan_results['flags'] = []
+                    scan_results['flags'].extend(found_in_archive)
+                    self.findings.append({
+                        'type': 'flag_found',
+                        'flags': found_in_archive,
+                        'location': 'archive_extraction',
+                        'status': 'success'
+                    })
+            except Exception as e:
+                print(f"⚠️  Archive scan warning: {e}")
+
+        # 3. Binwalk (Embedded Files)
         print("[*] Scanning for embedded files...")
         embedded = self.run_binwalk(filepath)
         if embedded:
             scan_results['embedded_files'] = embedded
             print(f"⚠️  Found {len(embedded)} embedded file signatures")
-            for emb in embedded[:5]:  # Show first 5
-                print(f"    {emb}")
+            # Auto-extract if binwalk found something interesting
+            if len(embedded) > 0 and self.config.get('auto_extract', True):
+                self.extract_with_binwalk(filepath)
 
-        # Check for Base64
+        # 4. Check for Base64
         print("[*] Checking for encoded data...")
         decoded_file = self.check_and_decode_base64(filepath)
         if decoded_file:
             scan_results['decoded_file'] = decoded_file
             
-        # Deep Image Scan (LSB + OCR)
+        # 5. Deep Image Scan (LSB + OCR)
         if 'image' in file_type['mime'] and Image:
             print("[*] Performing Deep Image Analysis (LSB & OCR)...")
             image_findings = self.deep_image_scan(filepath)
             if image_findings:
                 scan_results['image_analysis'] = image_findings
-                # Merge flags
                 if 'flags' in image_findings:
                     if 'flags' not in scan_results: scan_results['flags'] = []
                     scan_results['flags'].extend(image_findings['flags'])
-                    scan_results['flags'] = list(set(scan_results['flags']))
         
+        # Deduplicate flags
+        if 'flags' in scan_results:
+             scan_results['flags'] = list(set(scan_results['flags']))
+             
         scan_results['findings'] = self.findings
         return scan_results
 
