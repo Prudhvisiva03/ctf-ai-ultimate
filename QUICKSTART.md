@@ -1,235 +1,126 @@
-# CTFHunter Ultimate - Quick Start Guide
+# CTF-AI Ultimate - Quick Start Guide
 
-## 🚀 5-Minute Setup
+## 🚀 One-Command Setup (Linux/Kali)
 
-### Step 1: Installation
 ```bash
-cd ctfhunter
-chmod +x install.sh
-sudo ./install.sh
-```
+# Clone the repository
+git clone https://github.com/Prudhvisiva03/ctf-ai-ultimate
+cd ctf-ai-ultimate
 
-### Step 2: Verify Installation
-```bash
-ctfhunter --version
-```
+# Run automated setup
+chmod +x setup.sh
+./setup.sh
 
-### Step 3: Run Your First Scan
+# Add your API key
+nano config.json
+# Replace YOUR_GROQ_API_KEY_HERE with your actual key
 
-#### Example 1: Scan an Image
-```bash
-# Download a sample CTF image
-wget https://example.com/challenge.png
-
-# Analyze it
-ctfhunter challenge.png
-```
-
-#### Example 2: Scan a Web Challenge
-```bash
-ctfhunter https://ctf-challenge.example.com
-```
-
-#### Example 3: Scan a PCAP File
-```bash
-ctfhunter network_capture.pcap
-```
-
-### Step 4: Review Results
-```bash
-# Check the output directory
-ls -la output/
-
-# View the report
-cat output/report.txt
-
-# Check if flags were found
-cat output/results.txt
+# Test it!
+ctf-ai --solve challenge.dd.gz
 ```
 
 ---
 
-## 🎯 Common Workflows
+## ✅ What the Setup Does
 
-### Workflow 1: Image Steganography
-```bash
-ctfhunter suspicious_image.png
-# CTFHunter will:
-# ✓ Run zsteg (PNG)
-# ✓ Try steghide extraction
-# ✓ Check for embedded files
-# ✓ Extract metadata
-```
+1. ✅ Installs all system dependencies (binwalk, foremost, etc.)
+2. ✅ Installs Python packages (groq, python-magic, etc.)
+3. ✅ Creates config.json from template
+4. ✅ Sets up sudo access
+5. ✅ Installs ctf-ai command globally
 
-### Workflow 2: Archive Analysis
-```bash
-ctfhunter challenge.zip
-# CTFHunter will:
-# ✓ Extract contents
-# ✓ Scan each file recursively
-# ✓ Find nested archives
-# ✓ Look for flag.txt, secret.txt
-```
+---
 
-### Workflow 3: Network Forensics
-```bash
-ctfhunter capture.pcap
-# CTFHunter will:
-# ✓ Analyze protocols
-# ✓ Extract HTTP objects
-# ✓ Follow TCP streams
-# ✓ Search for credentials
-# ✓ Scan for flags in packets
-```
+## 🎯 Usage
 
-### Workflow 4: Binary Analysis
 ```bash
-ctfhunter binary.elf
-# CTFHunter will:
-# ✓ Run checksec
-# ✓ Extract strings
-# ✓ Find dangerous functions
-# ✓ Provide reversing hints
-```
+# Solve a challenge
+ctf-ai --solve challenge.dd.gz
 
-### Workflow 5: Web Recon
-```bash
-ctfhunter https://target.com
-# CTFHunter will:
-# ✓ Download & analyze HTML
-# ✓ Check JavaScript
-# ✓ Find hidden comments
-# ✓ Test common paths
-# ✓ Check robots.txt
+# With AI analysis
+ctf-ai --ai=groq --solve challenge.png
+
+# Manual mode (no AI)
+ctf-ai --ai=none --solve challenge.pcap
+
+# Interactive mode
+ctf-ai
 ```
 
 ---
 
-## 🔧 Configuration Tips
+## 🔑 Get a Free Groq API Key
 
-### Enable AI Hints
-1. Get API key from: https://platform.openai.com/api-keys
-2. Edit config.json:
-   ```json
-   {
-       "openai_api_key": "sk-your-key-here"
-   }
-   ```
-3. Run with AI:
-   ```bash
-   ctfhunter --ai-hint mystery.zip
-   ```
-
-### Customize Flag Patterns
-Edit `config.json`:
-```json
-{
-    "flag_patterns": [
-        "flag\\{[^}]+\\}",
-        "FLAG\\{[^}]+\\}",
-        "CUSTOM\\{[^}]+\\}"
-    ]
-}
-```
-
-### Add Custom Web Paths
-```json
-{
-    "web_paths": [
-        "/admin",
-        "/secret",
-        "/custom-endpoint",
-        "/api/flag"
-    ]
-}
-```
+1. Go to: https://console.groq.com/
+2. Sign up (free)
+3. Go to API Keys
+4. Create new key
+5. Copy and paste into `config.json`
 
 ---
 
-## 🐛 Troubleshooting
+## 📊 Features
 
-### Issue: "Command not found: ctfhunter"
-**Solution:**
+- ✅ **Fully Autonomous** - Finds flags automatically
+- ✅ **AI-Powered** - Uses Groq/Ollama for intelligent analysis
+- ✅ **Comprehensive** - Supports all CTF categories
+- ✅ **Unique Output** - Each challenge gets its own directory
+- ✅ **Auto-Scan** - Automatically scans extracted files
+
+---
+
+## 🎓 Example
+
 ```bash
-# Add to PATH manually
-export PATH=$PATH:/usr/local/bin
+$ ctf-ai --solve disko-1.dd.gz
 
-# Or run directly
-python3 ctfhunter.py <target>
+[*] Auto-scanning extracted files for flags...
+   ↳ Scanning directory: output/_extracted
+   ✅ Found flag(s) in: disko-1.dd
+🎉 FOUND 1 FLAG(S) IN EXTRACTED FILES!
+   🚩 picoCTF{1t5_ju5t_4_5tr1n9_be6031da}
+
+✅ Done! Check the 'output' directory.
 ```
 
-### Issue: "Module not found"
-**Solution:**
+---
+
+## 📁 Output Structure
+
+```
+output/
+└── disko-1_dd_2026-01-25_18-00-00/
+    ├── report.txt          # Human-readable report
+    ├── report.json         # Machine-readable data
+    ├── results.txt         # FLAGS ONLY
+    └── strings.txt         # All extracted strings
+```
+
+---
+
+## 🛠️ Troubleshooting
+
+### Config not found when using sudo
 ```bash
-pip3 install -r requirements.txt --force-reinstall
+sudo cp config.json /root/
 ```
 
-### Issue: "Permission denied"
-**Solution:**
+### Python package errors
 ```bash
-chmod +x ctfhunter.py
-# Or run as:
-python3 ctfhunter.py <target>
+pip install groq --break-system-packages
 ```
 
-### Issue: Tool warnings (zsteg, stegseek, etc.)
-**Solution:**
+### Strings command not found
 ```bash
-# Install missing tools
-sudo apt-get update
-sudo apt-get install -y zsteg stegseek steghide binwalk exiftool
+sudo apt install binutils
 ```
 
 ---
 
-## 📊 Understanding Output
+## 📚 Full Documentation
 
-### Terminal Output Symbols
-- ✅ Success / Found something important
-- ⚠️  Warning / Potential finding
-- ❌ Error / Not found
-- 🔥 Major success (extraction, etc.)
-- 🤖 AI hint
-- [*] Information
-- [+] Positive result
-
-### Output Files
-- `output/report.txt` - Human-readable report
-- `output/report.json` - Machine-readable data
-- `output/results.txt` - All discovered flags
-- `output/_extracted/` - Extracted files from archives
-- `output/_http_objects/` - HTTP objects from PCAP
-- `output/page_source.html` - Downloaded web pages
+See [README.md](README.md) for complete documentation.
 
 ---
 
-## 🎓 Learning Tips
-
-1. **Read the reports** - Don't just look for flags, understand what was found
-2. **Check all extracted files** - Flags might be in nested locations
-3. **Learn the tools** - Try running the underlying tools manually
-4. **Use AI hints wisely** - Use them to learn, not just get answers
-5. **Experiment** - Try different challenge types
-
----
-
-## 🏆 Pro Tips
-
-- Always check `output/` directory for extracted files
-- Use `--ai-hint` when stuck for learning guidance
-- Combine with manual analysis for best results
-- Read the full report, not just the summary
-- Keep your tools updated: `sudo apt-get update && sudo apt-get upgrade`
-
----
-
-## 📚 Next Steps
-
-1. Try CTFHunter on real CTF challenges
-2. Learn the underlying tools (binwalk, steghide, etc.)
-3. Contribute new modules or improvements
-4. Share your experience with the community
-
----
-
-**Happy Hunting! 🔥**
+**Happy Hacking!** 🔥
