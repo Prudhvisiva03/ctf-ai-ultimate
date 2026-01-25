@@ -5,7 +5,7 @@ setup(
     version="2.2.0",
     description="AI-Powered CTF Challenge Solver",
     author="Prudhvi Siva",
-    packages=find_packages(),
+    py_modules=['ctf-ai'],
     install_requires=[
         "groq>=1.0.0",
         "python-magic>=0.4.27",
@@ -14,7 +14,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'ctf-ai=ctf-ai:main',
+            'ctf-ai=ctf_ai:main',
         ],
     },
     python_requires='>=3.8',

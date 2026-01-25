@@ -44,18 +44,42 @@ class CTF_AI_Assistant:
     def load_config(self, config_file):
         """Load configuration"""
         try:
+            # 1. Check current directory first (essential for sudo)
+            current_dir_config = os.path.join(os.getcwd(), config_file)
+            if os.path.exists(current_dir_config):
+                print(f"[*] Loading config from: {current_dir_config}")
+                with open(current_dir_config, 'r') as f:
+                    config = json.load(f)
+                    self._handle_cleanup(config)
+                    return config
+
+            # 2. Check script directory
             script_dir = Path(__file__).parent
             config_path = script_dir / config_file
             
             if config_path.exists():
+                print(f"[*] Loading config from: {config_path}")
                 with open(config_path, 'r') as f:
-                    return json.load(f)
+                    config = json.load(f)
+                    self._handle_cleanup(config)
+                    return config
             else:
                 print(f"⚠️  Config file not found, using defaults")
                 return self.get_default_config()
         except Exception as e:
             print(f"⚠️  Error loading config: {e}")
             return self.get_default_config()
+
+    def _handle_cleanup(self, config):
+        """Handle auto-cleanup of output directory"""
+        if config.get('auto_cleanup', False):
+            output_dir = config.get('output_directory', 'output')
+            if os.path.exists(output_dir):
+                import shutil
+                print(f"🧹 Auto-cleanup: Removing {output_dir}...")
+                shutil.rmtree(output_dir)
+                # Recreate it immediately to avoid errors
+                os.makedirs(output_dir, exist_ok=True)
     
     def get_default_config(self):
         """Default configuration"""

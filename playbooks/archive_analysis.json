@@ -1,70 +1,41 @@
 {
-    "name": "Archive Analysis (Deep Recursion)",
-    "description": "Recursively extract and scan all nested archives",
-    "category": "forensics",
+    "name": "archive_analysis",
+    "description": "Archive Analysis (Deep Recursion) - Extract and analyze archives",
     "file_types": [
-        ".zip",
-        ".tar",
-        ".gz",
-        ".tgz",
-        ".rar",
-        ".7z",
-        ".bz2",
-        ".xz"
+        "zip",
+        "tar",
+        "gzip",
+        "bzip2",
+        "7z",
+        "rar"
     ],
-    "execution_strategy": "sequential",
-    "methods": [
+    "steps": [
         {
             "name": "Universal Extract (7z)",
             "description": "Try extracting with 7zip (handles most formats)",
-            "type": "tool",
-            "tool": "7z",
-            "args": [
-                "x",
-                "{target}",
-                "-ooutput/_extracted/{filename}_out",
-                "-y"
-            ],
-            "timeout": 120
+            "command": "7z x {target} -ooutput/_extracted/ -y",
+            "parse_output": false,
+            "continue_on_error": true
         },
         {
-            "name": "Unzip (Fallback)",
-            "description": "Standard unzip for compatibility",
-            "type": "tool",
-            "tool": "unzip",
-            "args": [
-                "-o",
-                "{target}",
-                "-d",
-                "output/_extracted/{filename}_unzip"
-            ],
-            "timeout": 60,
-            "optional": true
-        },
-        {
-            "name": "Zip Details",
-            "description": "Check for zip comments and details",
-            "type": "tool",
-            "tool": "zipdetails",
-            "args": [
-                "-v",
-                "{target}"
-            ],
-            "timeout": 30,
-            "optional": true
+            "name": "Search Extracted Files for Flags",
+            "description": "Run strings on all extracted files and search for flags",
+            "command": "find output/_extracted/ -type f -exec strings {} \\; 2>/dev/null | grep -iE '(picoCTF|flag\\{|FLAG\\{|CTF\\{)'",
+            "parse_output": true,
+            "continue_on_error": true
         },
         {
             "name": "Recursive Grep",
             "description": "Search for flags in all extracted files",
-            "type": "tool",
-            "tool": "grep",
-            "args": [
-                "-r",
-                "flag",
-                "output/_extracted/"
-            ],
-            "timeout": 60,
-            "optional": true
+            "command": "grep -r -iE '(picoCTF|flag|CTF)' output/_extracted/ 2>/dev/null",
+            "parse_output": true,
+            "continue_on_error": true
         }
+    ],
+    "flag_patterns": [
+        "picoCTF\\{[^}]+\\}",
+        "flag\\{[^}]+\\}",
+        "FLAG\\{[^}]+\\}",
+        "CTF\\{[^}]+\\}"
     ]
 }
