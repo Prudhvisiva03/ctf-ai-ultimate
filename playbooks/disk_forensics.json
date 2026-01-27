@@ -1,0 +1,57 @@
+{
+    "name": "disk_forensics",
+    "description": "Comprehensive disk image forensics analysis (.dd, .img, .raw, .vmdk)",
+    "file_types": [
+        "DOS/MBR boot sector",
+        "x86 boot sector",
+        "disk image",
+        "filesystem",
+        "FAT",
+        "NTFS",
+        "ext2",
+        "ext3",
+        "ext4"
+    ],
+    "steps": [
+        {
+            "name": "File Type Detection",
+            "description": "Identify disk image type and filesystem",
+            "command": "file {target}",
+            "parse_output": true
+        },
+        {
+            "name": "Strings Analysis (Quick Win)",
+            "description": "Extract all strings and search for flags",
+            "command": "strings {target} | grep -iE '(flag|picoCTF|CTF\\{|flag\\{)'",
+            "parse_output": true,
+            "continue_on_error": true
+        },
+        {
+            "name": "Comprehensive Strings Extraction",
+            "description": "Extract all printable strings to file",
+            "command": "strings {target} > {output_dir}/strings.txt",
+            "parse_output": false,
+            "continue_on_error": true
+        },
+        {
+            "name": "Binwalk Scan",
+            "description": "Scan for embedded files and signatures",
+            "command": "binwalk {target}",
+            "parse_output": true,
+            "continue_on_error": true
+        },
+        {
+            "name": "Search All Strings for Flags",
+            "description": "Deep search in strings output",
+            "command": "grep -iE '(picoCTF|flag|CTF)' {output_dir}/strings.txt",
+            "parse_output": true,
+            "continue_on_error": true
+        }
+    ],
+    "flag_patterns": [
+        "picoCTF\\{[^}]+\\}",
+        "flag\\{[^}]+\\}",
+        "FLAG\\{[^}]+\\}",
+        "CTF\\{[^}]+\\}"
+    ]
+}

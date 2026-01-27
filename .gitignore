@@ -28,10 +28,27 @@ output/
 _extracted/
 _http_objects/
 _pdf_extracted/
+extracted_zip/
 *.txt
 *.json
 !config.json
 !requirements.txt
+!playbooks/*.json
+
+# Test/Challenge files
+*.zip
+*.jpg
+*.jpeg
+*.png
+*.bmp
+*.gif
+*.bin
+*.pcap
+*.pcapng
+!examples/**/*
+
+# Cleanup scripts
+cleanup.py
 
 # IDE
 .vscode/

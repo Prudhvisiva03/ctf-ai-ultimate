@@ -33,6 +33,12 @@ from modules.pdf_scan import PDFScanner
 from modules.web_scan import WebScanner
 from modules.ai_helper import AIHelper
 from modules.reporter import Reporter
+from modules.colors import (
+    Colors, Emoji, colorize, success, error, warning, info,
+    header, highlight, code, path as color_path, flag_text,
+    separator, print_success, print_error, print_warning,
+    print_info, print_header, print_separator
+)
 
 
 class CTFHunter:
@@ -73,8 +79,8 @@ class CTFHunter:
                 return self.get_default_config()
                 
         except Exception as e:
-            print(f"⚠️  Error loading config: {str(e)}")
-            print("[*] Using default configuration")
+            print_warning(f"Error loading config: {str(e)}", emoji=True)
+            print_info("Using default configuration", emoji=False)
             return self.get_default_config()
     
     def get_default_config(self):
@@ -146,42 +152,51 @@ class CTFHunter:
     def scan_file(self, filepath):
         """Scan a file based on its type"""
         
-        print("\n" + "=" * 80)
-        print(f"CTFHunter Ultimate - Starting Analysis")
-        print("=" * 80)
+        print()
+        print(colorize("═" * 80, Colors.BRIGHT_CYAN))
+        print(colorize(f"{Emoji.SEARCH} CTFHunter Ultimate - Starting Analysis", Colors.BRIGHT_YELLOW, bold=True).center(90))
+        print(colorize("═" * 80, Colors.BRIGHT_CYAN))
         
         # Detect challenge type
         challenge_type = self.detect_challenge_type(filepath)
         
-        print(f"\n[+] Challenge Type Detected: {challenge_type.upper()}")
+        print()
+        print(colorize(f"{Emoji.TARGET} Challenge Type Detected: ", Colors.BRIGHT_CYAN, bold=True) + 
+              highlight(challenge_type.upper()))
         
         # Perform generic file scan first
-        print("\n[*] Performing generic file scan...")
+        print()
+        print_info("Performing generic file scan...", emoji=False)
         scan_results = self.file_scanner.scan(filepath)
         
         # Perform specialized scans based on type
         if challenge_type == 'image':
-            print("\n[*] Detected image file - running steganography analysis...")
+            print()
+            print(colorize(f"{Emoji.IMAGE} Detected image file - running steganography analysis...", Colors.BRIGHT_MAGENTA, bold=True))
             stego_results = self.stego_scanner.scan(filepath)
             scan_results.update(stego_results)
             
         elif challenge_type == 'archive':
-            print("\n[*] Detected archive - running extraction and recursive scan...")
+            print()
+            print(colorize(f"{Emoji.ARCHIVE} Detected archive - running extraction and recursive scan...", Colors.BRIGHT_YELLOW, bold=True))
             archive_results = self.archive_scanner.scan(filepath)
             scan_results.update(archive_results)
             
         elif challenge_type == 'pcap':
-            print("\n[*] Detected PCAP file - running network analysis...")
+            print()
+            print(colorize(f"{Emoji.WIFI} Detected PCAP file - running network analysis...", Colors.BRIGHT_BLUE, bold=True))
             pcap_results = self.pcap_scanner.scan(filepath)
             scan_results.update(pcap_results)
             
         elif challenge_type == 'elf':
-            print("\n[*] Detected ELF binary - running reverse engineering reconnaissance...")
+            print()
+            print(colorize(f"{Emoji.CODE} Detected ELF binary - running reverse engineering reconnaissance...", Colors.BRIGHT_GREEN, bold=True))
             elf_results = self.elf_scanner.scan(filepath)
             scan_results.update(elf_results)
             
         elif challenge_type == 'pdf':
-            print("\n[*] Detected PDF - running forensics analysis...")
+            print()
+            print(colorize(f"{Emoji.DOCUMENT} Detected PDF - running forensics analysis...", Colors.BRIGHT_RED, bold=True))
             pdf_results = self.pdf_scanner.scan(filepath)
             scan_results.update(pdf_results)
         
@@ -190,9 +205,10 @@ class CTFHunter:
     def scan_url(self, url):
         """Scan a URL"""
         
-        print("\n" + "=" * 80)
-        print(f"CTFHunter Ultimate - Web Challenge Analysis")
-        print("=" * 80)
+        print()
+        print(colorize("═" * 80, Colors.BRIGHT_CYAN))
+        print(colorize(f"{Emoji.GLOBE} CTFHunter Ultimate - Web Challenge Analysis", Colors.BRIGHT_YELLOW, bold=True).center(90))
+        print(colorize("═" * 80, Colors.BRIGHT_CYAN))
         
         # Perform web scan
         scan_results = self.web_scanner.scan(url)
@@ -202,22 +218,26 @@ class CTFHunter:
     def display_summary(self, scan_results):
         """Display scan summary"""
         
-        print("\n" + "=" * 80)
-        print("SCAN SUMMARY")
-        print("=" * 80)
+        print()
+        print(colorize("═" * 80, Colors.BRIGHT_CYAN))
+        print(colorize(f"{Emoji.CHART} SCAN SUMMARY", Colors.BRIGHT_YELLOW, bold=True).center(90))
+        print(colorize("═" * 80, Colors.BRIGHT_CYAN))
         
         # Collect all flags
         flags = self.reporter._collect_all_flags(scan_results)
         
         if flags:
-            print(f"\n🎉 SUCCESS! Found {len(flags)} flag(s):")
+            print()
+            print(colorize(f"{Emoji.TROPHY} SUCCESS! Found {len(flags)} flag(s):", Colors.BRIGHT_GREEN, bold=True))
             for i, flag in enumerate(flags, 1):
-                print(f"\n  {i}. {flag}")
+                print(f"\n  {i}. {flag_text(flag)}")
         else:
-            print("\n⚠️  No flags automatically discovered")
-            print("    Manual analysis may be required")
+            print()
+            print_warning("No flags automatically discovered", emoji=True)
+            print_info("Manual analysis may be required", emoji=False)
         
-        print("\n" + "=" * 80)
+        print()
+        print(colorize("═" * 80, Colors.BRIGHT_CYAN))
     
     def run(self, target, use_ai=False):
         """Main execution function"""
@@ -231,7 +251,7 @@ class CTFHunter:
         else:
             # Validate file exists
             if not os.path.exists(target):
-                print(f"❌ Error: File not found: {target}")
+                print_error(f"File not found: {target}", emoji=True)
                 return
             
             scan_results = self.scan_file(target)
@@ -240,7 +260,8 @@ class CTFHunter:
         self.display_summary(scan_results)
         
         # Generate report
-        print("\n[*] Generating comprehensive report...")
+        print()
+        print_info("Generating comprehensive report...", emoji=False)
         self.reporter.generate_report(scan_results, target)
         
         # AI hint if requested
@@ -248,33 +269,34 @@ class CTFHunter:
             if self.ai_helper.is_available():
                 self.ai_helper.get_hint(scan_results)
             else:
-                print("\n⚠️  AI helper not configured")
-                print("    Set 'openai_api_key' in config.json to enable AI hints")
+                print()
+                print_warning("AI helper not configured", emoji=True)
+                print_info("Set 'openai_api_key' in config.json to enable AI hints", emoji=False)
         
-        print("\n[+] Analysis complete!")
-        print(f"[+] Check the '{self.config.get('output_directory', 'output')}' directory for detailed results")
+        print()
+        print_success("Analysis complete!", emoji=True)
+        print_info(f"Check the '{self.config.get('output_directory', 'output')}' directory for detailed results", emoji=False)
 
 
 def print_banner():
     """Print CTFHunter banner"""
-    banner = """
-    ╔═══════════════════════════════════════════════════════════╗
-    ║                                                           ║
-    ║        ██████╗████████╗███████╗██╗  ██╗██╗   ██╗         ║
-    ║       ██╔════╝╚══██╔══╝██╔════╝██║  ██║██║   ██║         ║
-    ║       ██║        ██║   █████╗  ███████║██║   ██║         ║
-    ║       ██║        ██║   ██╔══╝  ██╔══██║██║   ██║         ║
-    ║       ╚██████╗   ██║   ██║     ██║  ██║╚██████╔╝         ║
-    ║        ╚═════╝   ╚═╝   ╚═╝     ╚═╝  ╚═╝ ╚═════╝          ║
-    ║                                                           ║
-    ║              ULTIMATE CTF AUTOMATION TOOL                ║
-    ║                     Version 1.0                          ║
-    ║                                                           ║
-    ╚═══════════════════════════════════════════════════════════╝
-    
-    Professional CTF Challenge Analysis & Flag Discovery Tool
-    """
-    print(banner)
+    print()
+    print(colorize("╔═══════════════════════════════════════════════════════════╗", Colors.BRIGHT_CYAN))
+    print(colorize("║                                                           ║", Colors.BRIGHT_CYAN))
+    print(colorize("║        ██████╗████████╗███████╗██╗  ██╗██╗   ██╗         ║", Colors.BRIGHT_MAGENTA, bold=True))
+    print(colorize("║       ██╔════╝╚══██╔══╝██╔════╝██║  ██║██║   ██║         ║", Colors.BRIGHT_MAGENTA, bold=True))
+    print(colorize("║       ██║        ██║   █████╗  ███████║██║   ██║         ║", Colors.BRIGHT_MAGENTA, bold=True))
+    print(colorize("║       ██║        ██║   ██╔══╝  ██╔══██║██║   ██║         ║", Colors.BRIGHT_MAGENTA, bold=True))
+    print(colorize("║       ╚██████╗   ██║   ██║     ██║  ██║╚██████╔╝         ║", Colors.BRIGHT_MAGENTA, bold=True))
+    print(colorize("║        ╚═════╝   ╚═╝   ╚═╝     ╚═╝  ╚═╝ ╚═════╝          ║", Colors.BRIGHT_MAGENTA, bold=True))
+    print(colorize("║                                                           ║", Colors.BRIGHT_CYAN))
+    print(colorize("║              ULTIMATE CTF AUTOMATION TOOL                ║", Colors.BRIGHT_YELLOW, bold=True))
+    print(colorize("║                     Version 1.0                          ║", Colors.BRIGHT_CYAN))
+    print(colorize("║                                                           ║", Colors.BRIGHT_CYAN))
+    print(colorize("╚═══════════════════════════════════════════════════════════╝", Colors.BRIGHT_CYAN))
+    print()
+    print(colorize("Professional CTF Challenge Analysis & Flag Discovery Tool", Colors.BRIGHT_WHITE).center(70))
+    print()
 
 
 def main():
@@ -330,10 +352,12 @@ def main():
         hunter.run(args.target, use_ai=args.ai_hint)
         
     except KeyboardInterrupt:
-        print("\n\n[!] Scan interrupted by user")
+        print()
+        print_warning("Scan interrupted by user", emoji=True)
         sys.exit(1)
     except Exception as e:
-        print(f"\n❌ Fatal error: {str(e)}")
+        print()
+        print_error(f"Fatal error: {str(e)}", emoji=True)
         import traceback
         traceback.print_exc()
         sys.exit(1)

@@ -25,6 +25,12 @@ from modules.ai_engine import AIEngine
 from modules.playbook_executor import PlaybookExecutor
 from modules.file_scan import FileScanner
 from modules.reporter import Reporter
+from modules.colors import (
+    Colors, Emoji, colorize, success, error, warning, info,
+    header, highlight, code, path as color_path, flag_text,
+    separator, print_success, print_error, print_warning,
+    print_info, print_header, print_separator, print_banner as color_banner
+)
 
 
 class CTF_AI_Assistant:
@@ -98,61 +104,73 @@ class CTF_AI_Assistant:
     
     def print_banner(self):
         """Print welcome banner"""
-        banner = """
-\033[36m╔═══════════════════════════════════════════════════════════════╗
-║                                                               ║
-║   ▄████▄   ▀█████████▄     ▄████████  ▄█   ▄██████▄   ▄█      ║
-║  ███    ███   ███    ███   ███    ███ ███  ███    ███ ███      ║
-║  ███    █▀    ███    ███   ███    █▀  ███▌ ███    ███ ███      ║
-║  ███          ███    ███  ▄███▄▄▄     ███▌ ███    ███ ███      ║
-║  ███          ███    ███ ▀▀███▀▀▀     ███▌ ███    ███ ███      ║
-║  ███    █▄    ███    ███   ███        ███  ███    ███ ███      ║
-║   ▀██████▀   ▄█████████▀   ███        █▀   ▀██████▀   █▀       ║
-║                                                               ║
-║         ULTIMATE AI-POWERED CTF ASSISTANT v2.0                ║
-║              Your Personal CTF Solver                         ║
-║                                                               ║
-╚═══════════════════════════════════════════════════════════════╝\033[0m
-
-\033[1;32m🤖 AI-Powered\033[0m | \033[1;33m🔧 Kali Tools\033[0m | \033[1;34m🧠 Smart Playbooks\033[0m | \033[1;31m🎯 Flag Hunter\033[0m
-"""
-        print(banner)
+        # Colorful ASCII art banner
+        print()
+        print(colorize("╔═══════════════════════════════════════════════════════════════╗", Colors.BRIGHT_CYAN))
+        print(colorize("║                                                               ║", Colors.BRIGHT_CYAN))
+        print(colorize("║   ▄████▄   ▀█████████▄     ▄████████  ▄█   ▄██████▄   ▄█      ║", Colors.BRIGHT_MAGENTA, bold=True))
+        print(colorize("║  ███    ███   ███    ███   ███    ███ ███  ███    ███ ███      ║", Colors.BRIGHT_MAGENTA, bold=True))
+        print(colorize("║  ███    █▀    ███    ███   ███    █▀  ███▌ ███    ███ ███      ║", Colors.BRIGHT_MAGENTA, bold=True))
+        print(colorize("║  ███          ███    ███  ▄███▄▄▄     ███▌ ███    ███ ███      ║", Colors.BRIGHT_MAGENTA, bold=True))
+        print(colorize("║  ███          ███    ███ ▀▀███▀▀▀     ███▌ ███    ███ ███      ║", Colors.BRIGHT_MAGENTA, bold=True))
+        print(colorize("║  ███    █▄    ███    ███   ███        ███  ███    ███ ███      ║", Colors.BRIGHT_MAGENTA, bold=True))
+        print(colorize("║   ▀██████▀   ▄█████████▀   ███        █▀   ▀██████▀   █▀       ║", Colors.BRIGHT_MAGENTA, bold=True))
+        print(colorize("║                                                               ║", Colors.BRIGHT_CYAN))
+        print(colorize("║         ULTIMATE AI-POWERED CTF ASSISTANT v2.0                ║", Colors.BRIGHT_YELLOW, bold=True))
+        print(colorize("║              Your Personal CTF Solver                         ║", Colors.BRIGHT_CYAN))
+        print(colorize("║                                                               ║", Colors.BRIGHT_CYAN))
+        print(colorize("╚═══════════════════════════════════════════════════════════════╝", Colors.BRIGHT_CYAN))
+        print()
+        
+        # Feature highlights
+        features = [
+            (f"{Emoji.ROBOT} AI-Powered", Colors.BRIGHT_GREEN),
+            (f"{Emoji.WRENCH} Kali Tools", Colors.BRIGHT_YELLOW),
+            (f"{Emoji.BRAIN} Smart Playbooks", Colors.BRIGHT_BLUE),
+            (f"{Emoji.TARGET} Flag Hunter", Colors.BRIGHT_RED)
+        ]
+        print(" | ".join([colorize(text, color, bold=True) for text, color in features]))
+        print()
         
         # Show AI status
         if self.ai_engine.is_available():
-            print(f"✅ AI Engine: {self.ai_engine.provider} ({self.ai_engine.model})")
+            print_success(f"AI Engine: {self.ai_engine.provider} ({self.ai_engine.model})", emoji=True)
         else:
-            print(f"⚠️  AI Engine: Offline mode (manual tools only)")
+            print_warning("AI Engine: Offline mode (manual tools only)", emoji=True)
         
-        print(f"✅ Playbooks loaded: {len(self.playbook_executor.get_available_playbooks())}")
+        print_success(f"Playbooks loaded: {len(self.playbook_executor.get_available_playbooks())}", emoji=True)
         print("")
     
     def interactive_mode(self):
         """Run in interactive mode"""
         self.print_banner()
         
-        print("━" * 65)
-        print("Type your request in natural language or use commands:")
-        print("  • solve <file>        - Analyze and solve a challenge")
-        print("  • analyze <file>      - Deep analysis without AI")
-        print("  • playbooks           - List available playbooks")
-        print("  • settings            - Show current settings")
-        print("  • help                - Show help")
-        print("  • quit/exit           - Exit")
-        print("━" * 65)
+        print(colorize("━" * 65, Colors.BRIGHT_BLACK))
+        print(colorize("Type your request in natural language or use commands:", Colors.BRIGHT_CYAN, bold=True))
+        print(f"  {Emoji.TARGET} {colorize('solve <file>', Colors.BRIGHT_GREEN)}        - Analyze and solve a challenge")
+        print(f"  {Emoji.SEARCH} {colorize('analyze <file>', Colors.BRIGHT_YELLOW)}      - Deep analysis without AI")
+        print(f"  {Emoji.MAGIC} {colorize('menu', Colors.BRIGHT_MAGENTA)}                - Interactive challenge menu")
+        print(f"  {Emoji.FOLDER} {colorize('playbooks', Colors.BRIGHT_BLUE)}           - List available playbooks")
+        print(f"  {Emoji.GEAR} {colorize('settings', Colors.BRIGHT_MAGENTA)}            - Show current settings")
+        print(f"  {Emoji.QUESTION} {colorize('help', Colors.BRIGHT_CYAN)}                - Show help")
+        print(f"  {Emoji.UNLOCK} {colorize('quit/exit', Colors.BRIGHT_RED)}           - Exit")
+        print(colorize("━" * 65, Colors.BRIGHT_BLACK))
         print("")
         
         while True:
             try:
-                # Get user input
-                user_input = input("🤖 You: ").strip()
+                # Get user input with colorful prompt
+                prompt = colorize(f"{Emoji.ROBOT} You: ", Colors.BRIGHT_CYAN, bold=True)
+                user_input = input(prompt).strip()
                 
                 if not user_input:
                     continue
                 
                 # Handle quit
                 if user_input.lower() in ['quit', 'exit', 'q']:
-                    print("\n👋 Goodbye! Happy hacking! 🔥\n")
+                    print()
+                    print(colorize(f"👋 Goodbye! Happy hacking! {Emoji.FIRE}", Colors.BRIGHT_YELLOW, bold=True))
+                    print()
                     break
                 
                 # Handle commands
@@ -168,14 +186,18 @@ class CTF_AI_Assistant:
                     self.show_settings()
                     continue
                 
+                if user_input.lower() == 'menu':
+                    self.menu_mode()
+                    continue
+                
                 # Process natural language request
                 self.process_request(user_input)
                 
             except KeyboardInterrupt:
-                print("\n\n[!] Interrupted by user")
+                print_warning("\nInterrupted by user", emoji=True)
                 break
             except Exception as e:
-                print(f"\n❌ Error: {str(e)}")
+                print_error(f"Error: {str(e)}", emoji=True)
                 import traceback
                 traceback.print_exc()
     
@@ -187,8 +209,8 @@ class CTF_AI_Assistant:
         parsed = self.parse_request(request)
         
         if not parsed['valid']:
-            print(f"❌ {parsed.get('error', 'Invalid request')}")
-            print("💡 Try: solve <filename> or help")
+            print_error(parsed.get('error', 'Invalid request'), emoji=True)
+            print_info("Try: solve <filename> or help", emoji=False)
             return
         
         action = parsed['action']
@@ -197,8 +219,8 @@ class CTF_AI_Assistant:
         if action in ['solve', 'analyze', 'find flag in', 'check']:
             self.solve_challenge(target, use_ai=(action == 'solve'))
         else:
-            print(f"❌ Unknown action: {action}")
-            print("💡 Try: solve <filename>")
+            print_error(f"Unknown action: {action}", emoji=True)
+            print_info("Try: solve <filename>", emoji=False)
     
     def parse_request(self, request: str) -> dict:
         """Parse natural language request"""
@@ -244,7 +266,7 @@ class CTF_AI_Assistant:
             import shutil
             command_word = words[0]
             if shutil.which(command_word):
-                 print(f"⚙️  Executing system command: {request}")
+                 print_info(f"Executing system command: {request}", emoji=False)
                  os.system(request)
                  return {'valid': False, 'error': 'System command executed'}
             
@@ -256,16 +278,220 @@ class CTF_AI_Assistant:
             'target': target
         }
     
+    def menu_mode(self):
+        """Interactive menu for selecting challenge type and solving with AI"""
+        print()
+        print(colorize("╔═══════════════════════════════════════════════════════════════╗", Colors.BRIGHT_CYAN))
+        print(colorize("║           🎯 INTERACTIVE CHALLENGE SOLVER MENU 🎯             ║", Colors.BRIGHT_YELLOW, bold=True))
+        print(colorize("╚═══════════════════════════════════════════════════════════════╝", Colors.BRIGHT_CYAN))
+        print()
+        
+        # Challenge type menu
+        challenge_types = [
+            ("1", "🔐 Cryptography", "crypto", "Encrypted messages, ciphers, encoding", Colors.BRIGHT_RED),
+            ("2", "🖼️  Steganography", "image", "Hidden data in images (PNG, JPG, BMP)", Colors.BRIGHT_MAGENTA),
+            ("3", "💾 Disk Forensics", "disk", "Disk images, MFT, file recovery", Colors.BRIGHT_BLUE),
+            ("4", "📦 Archive Analysis", "archive", "ZIP, TAR, compressed files", Colors.BRIGHT_YELLOW),
+            ("5", "📡 Network/PCAP", "pcap", "Network captures, packet analysis", Colors.BRIGHT_CYAN),
+            ("6", "💻 Binary/Reverse", "binary", "ELF, executables, reverse engineering", Colors.BRIGHT_GREEN),
+            ("7", "📄 PDF Forensics", "pdf", "PDF files, metadata, hidden content", Colors.BRIGHT_RED),
+            ("8", "🌐 Web Challenges", "web", "Websites, web vulnerabilities", Colors.BRIGHT_BLUE),
+            ("9", "🔍 Generic Scan", "generic", "Auto-detect challenge type", Colors.BRIGHT_WHITE)
+        ]
+        
+        print(colorize("Select Challenge Type:", Colors.BRIGHT_CYAN, bold=True))
+        print(colorize("═" * 65, Colors.BRIGHT_BLACK))
+        
+        for num, emoji_name, _, desc, color in challenge_types:
+            print(f"  {colorize(num, color, bold=True)}. {emoji_name:20s} - {colorize(desc, Colors.DIM)}")
+        
+        print(colorize("═" * 65, Colors.BRIGHT_BLACK))
+        print(f"  {colorize('0', Colors.BRIGHT_RED, bold=True)}. {Emoji.UNLOCK} Exit to main menu")
+        print()
+        
+        # Get user choice
+        try:
+            choice_prompt = colorize(f"{Emoji.QUESTION} Select option (0-9): ", Colors.BRIGHT_CYAN, bold=True)
+            choice = input(choice_prompt).strip()
+            
+            if choice == '0':
+                print_info("Returning to main menu...", emoji=False)
+                return
+            
+            # Validate choice
+            if choice not in [str(i) for i in range(1, 10)]:
+                print_error("Invalid choice! Please select 1-9.", emoji=True)
+                return
+            
+            # Get selected challenge type
+            selected = challenge_types[int(choice) - 1]
+            challenge_type = selected[2]
+            type_name = selected[1]
+            
+            print()
+            print_success(f"Selected: {type_name}", emoji=True)
+            print()
+            
+            # Ask for file path
+            file_prompt = colorize(f"{Emoji.FILE} Enter file path (or URL for web): ", Colors.BRIGHT_YELLOW, bold=True)
+            filepath = input(file_prompt).strip()
+            
+            if not filepath:
+                print_error("No file path provided!", emoji=True)
+                return
+            
+            # Check if file exists (unless it's a URL)
+            if not filepath.startswith('http') and not os.path.exists(filepath):
+                print_error(f"File not found: {filepath}", emoji=True)
+                return
+            
+            # Ask for challenge description (optional)
+            print()
+            desc_prompt = colorize(f"{Emoji.DOCUMENT} Challenge description (optional, press Enter to skip): ", Colors.BRIGHT_CYAN)
+            description = input(desc_prompt).strip()
+            
+            # AI Guidance based on challenge type
+            if self.ai_engine.is_available():
+                print()
+                print(colorize(f"{Emoji.BRAIN} AI Guidance for {type_name}:", Colors.BRIGHT_GREEN, bold=True))
+                print(colorize("─" * 65, Colors.BRIGHT_BLACK))
+                
+                guidance = self.get_ai_guidance(challenge_type, filepath, description)
+                print(colorize(guidance, Colors.BRIGHT_WHITE))
+                print(colorize("─" * 65, Colors.BRIGHT_BLACK))
+                print()
+                
+                # Ask if user wants to proceed
+                proceed_prompt = colorize(f"{Emoji.ROCKET} Proceed with AI-powered analysis? (y/n): ", Colors.BRIGHT_YELLOW, bold=True)
+                proceed = input(proceed_prompt).strip().lower()
+                
+                if proceed != 'y':
+                    print_info("Analysis cancelled.", emoji=False)
+                    return
+            
+            # Solve the challenge
+            print()
+            print(colorize(f"{Emoji.SPARKLES} Starting AI-powered analysis...", Colors.BRIGHT_MAGENTA, bold=True))
+            print()
+            
+            self.solve_challenge(filepath, use_ai=True, description=description or None)
+            
+        except KeyboardInterrupt:
+            print()
+            print_warning("Menu cancelled by user", emoji=True)
+        except Exception as e:
+            print()
+            print_error(f"Error in menu mode: {str(e)}", emoji=True)
+            import traceback
+            traceback.print_exc()
+    
+    def get_ai_guidance(self, challenge_type: str, filepath: str, description: str = "") -> str:
+        """Get AI guidance for specific challenge type"""
+        
+        guidance_map = {
+            "crypto": f"""{Emoji.KEY} Cryptography Challenge Tips:
+• Look for common ciphers: Caesar, Vigenere, Base64, ROT13
+• Check for XOR encryption patterns
+• Analyze frequency distribution
+• Try online cipher identifiers
+• Look for key hints in the description""",
+            
+            "image": f"""{Emoji.IMAGE} Steganography Challenge Tips:
+• Check EXIF metadata with exiftool
+• Try LSB (Least Significant Bit) extraction
+• Use tools: steghide, zsteg, stegsolve
+• Look for hidden files with binwalk
+• Check different color channels
+• Try strings command for embedded text""",
+            
+            "disk": f"""{Emoji.SHIELD} Disk Forensics Tips:
+• Scan MFT (Master File Table) for deleted files
+• Use tools: sleuthkit, autopsy, volatility
+• Look for hidden partitions
+• Check file slack space
+• Recover deleted files with photorec
+• Analyze file timestamps""",
+            
+            "archive": f"""{Emoji.ARCHIVE} Archive Analysis Tips:
+• Try password cracking with john/hashcat
+• Check for nested archives
+• Look for hidden files (ls -la)
+• Try different extraction tools
+• Check for zip comment fields
+• Look for alternate data streams""",
+            
+            "pcap": f"""{Emoji.WIFI} Network/PCAP Analysis Tips:
+• Use Wireshark for packet inspection
+• Follow TCP/HTTP streams
+• Look for file transfers (FTP, HTTP)
+• Check for suspicious DNS queries
+• Extract objects with NetworkMiner
+• Analyze protocol statistics""",
+            
+            "binary": f"""{Emoji.CODE} Binary/Reverse Engineering Tips:
+• Check with 'file' command first
+• Use strings to find readable text
+• Disassemble with objdump or radare2
+• Debug with gdb or ltrace
+• Look for hardcoded keys/flags
+• Check for anti-debugging techniques""",
+            
+            "pdf": f"""{Emoji.DOCUMENT} PDF Forensics Tips:
+• Extract metadata with pdfinfo
+• Check for embedded files with pdfdetach
+• Look for JavaScript with pdf-parser
+• Extract images with pdfimages
+• Check for hidden layers
+• Analyze PDF structure with peepdf""",
+            
+            "web": f"""{Emoji.GLOBE} Web Challenge Tips:
+• View page source (Ctrl+U)
+• Check robots.txt and sitemap.xml
+• Inspect cookies and local storage
+• Try SQL injection, XSS
+• Check for hidden directories (dirb, gobuster)
+• Analyze JavaScript files
+• Look for API endpoints""",
+            
+            "generic": f"""{Emoji.SEARCH} Generic Analysis Tips:
+• Start with 'file' command to identify type
+• Run strings to find readable text
+• Check with binwalk for embedded files
+• Look for magic bytes and file signatures
+• Try hexdump for binary analysis
+• Use exiftool for metadata"""
+        }
+        
+        base_guidance = guidance_map.get(challenge_type, guidance_map["generic"])
+        
+        # Add file-specific info
+        if os.path.exists(filepath):
+            import magic
+            try:
+                file_type = magic.from_file(filepath)
+                file_size = os.path.getsize(filepath)
+                size_str = f"{file_size:,} bytes"
+                
+                base_guidance += f"\n\n{Emoji.INFO} File Info:\n• Type: {file_type}\n• Size: {size_str}"
+            except:
+                pass
+        
+        if description:
+            base_guidance += f"\n\n{Emoji.DOCUMENT} Challenge Description:\n{description}"
+        
+        return base_guidance
+    
     def solve_challenge(self, initial_target: str, use_ai=True, description=None):
         """Solve a CTF challenge (Recursive)"""
-        print(f"🎯 Target: {initial_target}")
+        print()
+        print(colorize(f"{Emoji.TARGET} Target: ", Colors.BRIGHT_CYAN, bold=True) + color_path(initial_target))
         if description:
-            print(f"📝 Challenge: {description}")
+            print(colorize(f"{Emoji.DOCUMENT} Challenge: ", Colors.BRIGHT_YELLOW, bold=True) + description)
         print("")
         
         # Check if target exists
         if not initial_target.startswith('http') and not os.path.exists(initial_target):
-            print(f"❌ File not found: {initial_target}")
+            print_error(f"File not found: {initial_target}", emoji=True)
             return
 
         # Queue for files to analyze (BFS)
@@ -285,8 +511,9 @@ class CTF_AI_Assistant:
                 continue
             processed_files.add(current_target)
             
-            print(f"\n⚡ Analyzing: {os.path.basename(current_target)}")
-            print("━" * 40)
+            print()
+            print(colorize(f"{Emoji.ANALYZE} Analyzing: ", Colors.BRIGHT_CYAN, bold=True) + highlight(os.path.basename(current_target)))
+            print(colorize("━" * 60, Colors.BRIGHT_BLACK))
             
             # Step 1: File analysis
             file_info = self.get_file_info(current_target)
@@ -296,12 +523,13 @@ class CTF_AI_Assistant:
             if scan_results.get('decoded_file'):
                 new_file = scan_results['decoded_file']
                 if new_file not in processed_files:
-                    print(f"   ↪️  Queueing new file: {new_file}")
+                    print(colorize(f"   ↪️  Queueing new file: ", Colors.BRIGHT_YELLOW) + color_path(new_file))
                     analysis_queue.append(new_file)
             
             if use_ai and self.ai_engine.is_available():
                 # Step 2: AI analysis
-                print("\n🤖 Step 2: AI analyzing challenge type...")
+                print()
+                print(colorize(f"{Emoji.ROBOT} Step 2: AI analyzing challenge type...", Colors.BRIGHT_GREEN, bold=True))
                 
                 # Check for Smart Solver requirements (Description + Text File)
                 is_text = False
@@ -313,20 +541,22 @@ class CTF_AI_Assistant:
                 except: pass
 
                 if description and is_text:
-                    print("⚡ Smart Solver Activated: Analyzing problem description & file content...")
+                    print(colorize(f"{Emoji.MAGIC} Smart Solver Activated: Analyzing problem description & file content...", Colors.BRIGHT_MAGENTA, bold=True))
                     with open(current_target, 'r', errors='ignore') as f:
                         file_content = f.read()
                     
                     solver_script = self.ai_engine.generate_solver_script(description, file_content)
                     
                     if solver_script:
-                        print("\n📜 AI Generated Solver Script:")
-                        print("-" * 40)
+                        print()
+                        print(colorize(f"{Emoji.CODE} AI Generated Solver Script:", Colors.BRIGHT_CYAN, bold=True))
+                        print(colorize("-" * 60, Colors.BRIGHT_BLACK))
                         lines = solver_script.splitlines()
                         for i, line in enumerate(lines[:10]):
-                            print(f"{i+1:3}: {line}")
-                        if len(lines) > 10: print(f"... ({len(lines)-10} more lines)")
-                        print("-" * 40)
+                            print(colorize(f"{i+1:3}: ", Colors.BRIGHT_BLACK) + line)
+                        if len(lines) > 10: 
+                            print(colorize(f"... ({len(lines)-10} more lines)", Colors.DIM))
+                        print(colorize("-" * 60, Colors.BRIGHT_BLACK))
                         
                         # Save and Run
                         output_dir = self.config['output_directory']
@@ -342,7 +572,7 @@ class CTF_AI_Assistant:
                         with open(solver_path, 'w') as f:
                             f.write(solver_script)
                             
-                        print(f"[*] Executing solver: {solver_path}")
+                        print_info(f"Executing solver: {solver_path}", emoji=False)
                         try:
                             # Run the generated script in the output directory
                             result = subprocess.run(
@@ -353,10 +583,11 @@ class CTF_AI_Assistant:
                                 timeout=30
                             )
                             
-                            print("\n📝 Solver Output:")
+                            print()
+                            print(colorize(f"{Emoji.DOCUMENT} Solver Output:", Colors.BRIGHT_YELLOW, bold=True))
                             print(result.stdout)
                             if result.stderr:
-                                print(f"⚠️ Error: {result.stderr}")
+                                print_warning(f"Error: {result.stderr}", emoji=True)
                                 
                             # Check for flags in output
                             generated_flags = []
@@ -366,24 +597,30 @@ class CTF_AI_Assistant:
                                     generated_flags.extend(found)
                             
                             if generated_flags:
-                                print(f"🎉 OPENAI SOLVED IT! Found {len(generated_flags)} flag(s)!")
+                                print()
+                                print(colorize(f"{Emoji.TROPHY} OPENAI SOLVED IT! Found {len(generated_flags)} flag(s)!", Colors.BRIGHT_GREEN, bold=True))
                                 results = {'flags': generated_flags, 'status': 'success'}
                                 all_results.append(results)
                                 # Skip normal playbook execution if solved
                                 continue 
                                 
                         except Exception as e:
-                            print(f"⚠️  Solver execution failed: {e}")
+                            print_warning(f"Solver execution failed: {e}", emoji=True)
 
                 # Regular Playbook Analysis
                 file_info['scan_findings'] = scan_results.get('findings', [])
                 analysis = self.ai_engine.analyze_challenge(file_info)
                 playbook_name = analysis.get('recommended_playbook', 'generic')
-                print(f"   Strategy: {playbook_name} ({analysis.get('confidence', 0)*100:.0f}%)")
+                confidence = analysis.get('confidence', 0) * 100
+                print(colorize(f"   {Emoji.BRAIN} Strategy: ", Colors.BRIGHT_CYAN) + 
+                      highlight(playbook_name) + 
+                      colorize(f" ({confidence:.0f}%)", Colors.BRIGHT_GREEN))
             else:
                 # Manual playbook selection
                 playbook_name = self.select_playbook_by_extension(file_info)
-                print(f"   Strategy: {playbook_name} (Manual)")
+                print(colorize(f"   {Emoji.WRENCH} Strategy: ", Colors.BRIGHT_YELLOW) + 
+                      highlight(playbook_name) + 
+                      colorize(" (Manual)", Colors.DIM))
             
             # Step 3: Execute playbook
             # Only execute if it's not 'generic' OR we haven't found anything yet
@@ -395,10 +632,11 @@ class CTF_AI_Assistant:
                 # Check tools for the selected playbook
                 playbook_file = os.path.join(os.path.dirname(__file__), 'playbooks', f"{playbook_name}.yaml")
                 if os.path.exists(playbook_file):
-                    print(f"🔧 Verifying tools for {playbook_name}...")
+                    print_info(f"Verifying tools for {playbook_name}...", emoji=False)
                     installer.verify_playbook_tools(playbook_file)
                 
-                print(f"\n🚀 Executing playbook...")
+                print()
+                print(colorize(f"{Emoji.ROCKET} Executing playbook...", Colors.BRIGHT_MAGENTA, bold=True))
                 
                 results = self.playbook_executor.execute_playbook(
                     playbook_name,
@@ -409,24 +647,30 @@ class CTF_AI_Assistant:
                 
                 # Report Flags Immediately
                 if results.get('flags'):
-                    print(f"\n🎉 FLAG FOUND in {os.path.basename(current_target)}:")
+                    print()
+                    print(colorize(f"{Emoji.SPARKLES} FLAG FOUND in ", Colors.BRIGHT_GREEN, bold=True) + 
+                          highlight(os.path.basename(current_target)) + colorize(":", Colors.BRIGHT_GREEN, bold=True))
                     for flag in results['flags']:
                         desc = self.describe_flag(flag)
-                        print(f"   🚩 {flag}")
-                        print(f"      ℹ️  {desc}")
+                        print(f"   {flag_text(flag)}")
+                        print(colorize(f"      {Emoji.INFO} {desc}", Colors.BRIGHT_CYAN))
             
-            print("━" * 40)
+            print(colorize("━" * 60, Colors.BRIGHT_BLACK))
 
         # Final Summary
-        print("\n" + "="*65)
-        print("📊 SESSION COMPLETE")
-        print("="*65)
+        print()
+        print(colorize("═" * 65, Colors.BRIGHT_CYAN))
+        print(colorize(f"{Emoji.CHART} SESSION COMPLETE", Colors.BRIGHT_YELLOW, bold=True).center(65))
+        print(colorize("═" * 65, Colors.BRIGHT_CYAN))
         
         total_flags = sum(len(r.get('flags', [])) for r in all_results)
         if total_flags > 0:
-            print(f"\n🏆 GRAND TOTAL: {total_flags} Flag(s) Found!")
+            print()
+            print(colorize(f"{Emoji.TROPHY} GRAND TOTAL: ", Colors.BRIGHT_GREEN, bold=True) + 
+                  colorize(f"{total_flags} Flag(s) Found!", Colors.BRIGHT_YELLOW, bold=True))
         else:
-            print("\n⚠️  No flags found in this session.")
+            print()
+            print_warning("No flags found in this session.", emoji=True)
         
         # Step 5: Generate report (for the initial file) with unique output directory
         report_data = {
@@ -438,7 +682,8 @@ class CTF_AI_Assistant:
         reporter = Reporter(self.config, challenge_name=initial_target)
         reporter.generate_report(report_data, initial_target)
         
-        print("\n✅ Done! Check the 'output' directory.")
+        print()
+        print_success("Done! Check the 'output' directory.", emoji=True)
         print("")
     
     def get_file_info(self, filepath: str) -> dict:
@@ -520,66 +765,116 @@ class CTF_AI_Assistant:
         """List available playbooks"""
         playbooks = self.playbook_executor.get_available_playbooks()
         
-        print("\n📚 Available Playbooks:")
-        print("=" * 50)
+        print()
+        print(colorize(f"{Emoji.FOLDER} Available Playbooks:", Colors.BRIGHT_MAGENTA, bold=True))
+        print(colorize("═" * 60, Colors.BRIGHT_BLACK))
         for i, name in enumerate(playbooks, 1):
             playbook = self.playbook_executor.playbooks.get(name, {})
             desc = playbook.get('description', 'No description')
-            print(f"  {i}. {name:20s} - {desc}")
+            num = colorize(f"  {i:2}.", Colors.BRIGHT_CYAN, bold=True)
+            name_colored = colorize(f"{name:25s}", Colors.BRIGHT_YELLOW)
+            desc_colored = colorize(f"- {desc}", Colors.WHITE)
+            print(f"{num} {name_colored} {desc_colored}")
         print("")
     
     def show_settings(self):
         """Show current settings"""
-        print("\n⚙️  Current Settings:")
-        print("=" * 50)
-        print(f"  AI Provider: {self.ai_engine.provider}")
-        print(f"  AI Model: {self.ai_engine.model}")
-        print(f"  AI Status: {'✅ Available' if self.ai_engine.is_available() else '❌ Offline'}")
-        print(f"  Output Directory: {self.config.get('output_directory', 'output')}")
-        print(f"  Playbooks: {len(self.playbook_executor.get_available_playbooks())}")
+        print()
+        print(colorize(f"{Emoji.GEAR} Current Settings:", Colors.BRIGHT_CYAN, bold=True))
+        print(colorize("═" * 60, Colors.BRIGHT_BLACK))
+        
+        # AI Provider
+        print(colorize("  AI Provider:      ", Colors.BRIGHT_YELLOW) + 
+              highlight(self.ai_engine.provider))
+        
+        # AI Model
+        print(colorize("  AI Model:         ", Colors.BRIGHT_YELLOW) + 
+              highlight(self.ai_engine.model))
+        
+        # AI Status
+        if self.ai_engine.is_available():
+            status = colorize(f"{Emoji.SUCCESS} Available", Colors.BRIGHT_GREEN, bold=True)
+        else:
+            status = colorize(f"{Emoji.ERROR} Offline", Colors.BRIGHT_RED, bold=True)
+        print(colorize("  AI Status:        ", Colors.BRIGHT_YELLOW) + status)
+        
+        # Output Directory
+        print(colorize("  Output Directory: ", Colors.BRIGHT_YELLOW) + 
+              color_path(self.config.get('output_directory', 'output')))
+        
+        # Playbooks
+        print(colorize("  Playbooks:        ", Colors.BRIGHT_YELLOW) + 
+              highlight(str(len(self.playbook_executor.get_available_playbooks()))))
         print("")
     
     def show_help(self):
         """Show help"""
-        help_text = """
-╔══════════════════════════════════════════════════════════════╗
-║                         HELP GUIDE                           ║
-╚══════════════════════════════════════════════════════════════╝
-
-🎯 NATURAL LANGUAGE COMMANDS:
-  • solve challenge.png
-  • find flag in file.zip
-  • analyze capture.pcap
-  • check binary.elf
-
-📋 DIRECT COMMANDS:
-  • playbooks          - List all available playbooks
-  • settings           - Show current configuration
-  • help               - Show this help
-  • quit / exit        - Exit the program
-
-💡 EXAMPLES:
-  🤖 You: solve mystery.png
-  🤖 You: find flag in challenge.zip
-  🤖 You: analyze http://target.com
-  🤖 You: check suspicious.elf
-
-⚙️  CONFIGURATION:
-  Edit config.json to set:
-  • ai_provider (openai, ollama, claude, groq, none)
-  • ai_model (gpt-4, llama3, etc.)
-  • API keys for cloud AI providers
-
-🔧 AI PROVIDERS:
-  • openai  - GPT-4 (best, costs money)
-  • ollama  - Local AI (free, needs setup)
-  • claude  - Claude by Anthropic
-  • groq    - Fast inference (free tier)
-  • none    - Manual mode (no AI)
-
-📚 More info: Check README.md
-"""
-        print(help_text)
+        print()
+        print(colorize("╔══════════════════════════════════════════════════════════════╗", Colors.BRIGHT_CYAN))
+        print(colorize("║                         HELP GUIDE                           ║", Colors.BRIGHT_YELLOW, bold=True))
+        print(colorize("╚══════════════════════════════════════════════════════════════╝", Colors.BRIGHT_CYAN))
+        print()
+        
+        # Natural Language Commands
+        print(colorize(f"{Emoji.TARGET} NATURAL LANGUAGE COMMANDS:", Colors.BRIGHT_GREEN, bold=True))
+        commands = [
+            ("solve challenge.png", "Solve a CTF challenge with AI"),
+            ("find flag in file.zip", "Search for flags in archives"),
+            ("analyze capture.pcap", "Analyze network captures"),
+            ("check binary.elf", "Examine binary files")
+        ]
+        for cmd, desc in commands:
+            print(f"  {Emoji.SPARKLES} {code(cmd):30s} - {desc}")
+        print()
+        
+        # Direct Commands
+        print(colorize(f"{Emoji.FOLDER} DIRECT COMMANDS:", Colors.BRIGHT_BLUE, bold=True))
+        direct_cmds = [
+            ("playbooks", "List all available playbooks"),
+            ("settings", "Show current configuration"),
+            ("help", "Show this help"),
+            ("quit / exit", "Exit the program")
+        ]
+        for cmd, desc in direct_cmds:
+            print(f"  {Emoji.STAR} {code(cmd):30s} - {desc}")
+        print()
+        
+        # Examples
+        print(colorize(f"{Emoji.FIRE} EXAMPLES:", Colors.BRIGHT_YELLOW, bold=True))
+        examples = [
+            "solve mystery.png",
+            "find flag in challenge.zip",
+            "analyze http://target.com",
+            "check suspicious.elf"
+        ]
+        for ex in examples:
+            print(f"  {colorize(f'{Emoji.ROBOT} You:', Colors.BRIGHT_CYAN, bold=True)} {highlight(ex)}")
+        print()
+        
+        # Configuration
+        print(colorize(f"{Emoji.GEAR} CONFIGURATION:", Colors.BRIGHT_MAGENTA, bold=True))
+        print(f"  Edit {color_path('config.json')} to set:")
+        print(f"  {Emoji.ROBOT} ai_provider (openai, ollama, claude, groq, none)")
+        print(f"  {Emoji.BRAIN} ai_model (gpt-4, llama3, etc.)")
+        print(f"  {Emoji.KEY} API keys for cloud AI providers")
+        print()
+        
+        # AI Providers
+        print(colorize(f"{Emoji.WRENCH} AI PROVIDERS:", Colors.BRIGHT_CYAN, bold=True))
+        providers = [
+            ("openai", "GPT-4 (best, costs money)", Colors.BRIGHT_GREEN),
+            ("ollama", "Local AI (free, needs setup)", Colors.BRIGHT_BLUE),
+            ("claude", "Claude by Anthropic", Colors.BRIGHT_MAGENTA),
+            ("groq", "Fast inference (free tier)", Colors.BRIGHT_YELLOW),
+            ("none", "Manual mode (no AI)", Colors.BRIGHT_RED)
+        ]
+        for name, desc, color in providers:
+            provider_name = f"{name:10s}"
+            print(f"  {Emoji.STAR} {colorize(provider_name, color, bold=True)} - {desc}")
+        print()
+        
+        print(colorize(f"{Emoji.INFO} More info: Check README.md", Colors.DIM))
+        print()
 
 
 def main():
