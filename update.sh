@@ -79,7 +79,7 @@ echo ""
 echo -e "${INFO} Updating package lists..."
 sudo apt-get update -qq
 
-echo -e "${INFO} Installing/updating system dependencies..."
+echo -e "${INFO} Installing/updating core system dependencies..."
 sudo apt-get install -y -qq \
     python3 \
     python3-pip \
@@ -90,9 +90,6 @@ sudo apt-get install -y -qq \
     binwalk \
     foremost \
     steghide \
-    zsteg \
-    stegseek \
-    outguess \
     tesseract-ocr \
     wireshark-common \
     tshark \
@@ -111,7 +108,34 @@ sudo apt-get install -y -qq \
     curl \
     wget
 
-echo -e "${GREEN}${SUCCESS} System packages updated!${NC}"
+echo -e "${GREEN}${SUCCESS} Core system packages updated!${NC}"
+
+# Install optional packages (may not be in all repos)
+echo -e "${INFO} Installing optional packages..."
+OPTIONAL_PACKAGES="zsteg stegseek outguess"
+for pkg in $OPTIONAL_PACKAGES; do
+    if apt-cache show $pkg >/dev/null 2>&1; then
+        echo -e "${INFO} Installing $pkg..."
+        sudo apt-get install -y -qq $pkg 2>/dev/null || echo -e "${YELLOW}${INFO} $pkg not available, skipping...${NC}"
+    else
+        echo -e "${YELLOW}${INFO} $pkg not in repos, installing via gem/alternative...${NC}"
+        case $pkg in
+            zsteg)
+                # Install zsteg via Ruby gem
+                if command -v gem >/dev/null 2>&1; then
+                    sudo gem install zsteg 2>/dev/null || echo -e "${YELLOW}${INFO} Could not install zsteg via gem${NC}"
+                else
+                    echo -e "${YELLOW}${INFO} Ruby not installed, skipping zsteg${NC}"
+                fi
+                ;;
+            *)
+                echo -e "${YELLOW}${INFO} $pkg not available${NC}"
+                ;;
+        esac
+    fi
+done
+
+echo -e "${GREEN}${SUCCESS} Package installation complete!${NC}"
 echo ""
 
 echo -e "${CYAN}═══════════════════════════════════════════════════════════════${NC}"
