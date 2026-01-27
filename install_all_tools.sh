@@ -4,7 +4,7 @@
 # Version: 2.1
 # Date: 2026-01-27
 
-set -e  # Exit on error
+# Don't exit on error - continue installing what's available
 
 # Colors
 RED='\033[0;31m'
@@ -62,7 +62,7 @@ apt-get install -y -qq \
     build-essential \
     git \
     curl \
-    wget
+    wget 2>/dev/null || true
 
 echo -e "${INFO} Installing file analysis tools..."
 apt-get install -y -qq \
@@ -74,19 +74,26 @@ apt-get install -y -qq \
     binwalk \
     foremost \
     xxd \
-    hexedit
+    hexedit 2>/dev/null || true
 
 echo -e "${INFO} Installing archive tools..."
+# Install core archive tools
 apt-get install -y -qq \
     unzip \
     tar \
     gzip \
     bzip2 \
     xz-utils \
-    p7zip-full \
-    p7zip-rar \
-    unrar \
-    rar
+    p7zip-full 2>/dev/null || true
+
+# Install optional archive tools (may not be in all repos)
+for pkg in unrar rar p7zip-rar; do
+    if apt-cache show $pkg >/dev/null 2>&1; then
+        apt-get install -y -qq $pkg 2>/dev/null || echo -e "${YELLOW}${INFO} $pkg not available${NC}"
+    else
+        echo -e "${YELLOW}${INFO} $pkg not in repos, skipping...${NC}"
+    fi
+done
 
 echo -e "${GREEN}${SUCCESS} Core tools installed!${NC}"
 echo ""
@@ -97,7 +104,7 @@ echo -e "${CYAN}═════════════════════�
 echo ""
 
 echo -e "${INFO} Installing steghide..."
-apt-get install -y -qq steghide
+apt-get install -y -qq steghide 2>/dev/null || true
 
 echo -e "${INFO} Installing stegseek..."
 if apt-cache show stegseek >/dev/null 2>&1; then
@@ -145,7 +152,7 @@ apt-get install -y -qq \
     tcpdump \
     nmap \
     netcat-traditional \
-    socat
+    socat 2>/dev/null || true
 
 echo -e "${GREEN}${SUCCESS} Network tools installed!${NC}"
 echo ""
@@ -162,7 +169,7 @@ apt-get install -y -qq \
     radare2 \
     binutils \
     objdump \
-    readelf
+    readelf 2>/dev/null || true
 
 echo -e "${INFO} Installing checksec..."
 if ! command -v checksec >/dev/null 2>&1; then
@@ -184,7 +191,7 @@ echo ""
 apt-get install -y -qq \
     poppler-utils \
     pdfgrep \
-    qpdf
+    qpdf 2>/dev/null || true
 
 echo -e "${INFO} Installing peepdf..."
 pip3 install --break-system-packages peepdf-fork 2>/dev/null || true
@@ -202,7 +209,7 @@ apt-get install -y -qq \
     autopsy \
     testdisk \
     photorec \
-    volatility3
+    volatility3 2>/dev/null || true
 
 echo -e "${GREEN}${SUCCESS} Forensics tools installed!${NC}"
 echo ""
@@ -218,7 +225,7 @@ apt-get install -y -qq \
     gobuster \
     ffuf \
     sqlmap \
-    wfuzz
+    wfuzz 2>/dev/null || true
 
 echo -e "${GREEN}${SUCCESS} Web tools installed!${NC}"
 echo ""
@@ -234,7 +241,7 @@ apt-get install -y -qq \
     aircrack-ng \
     hydra \
     hashid \
-    hash-identifier
+    hash-identifier 2>/dev/null || true
 
 echo -e "${GREEN}${SUCCESS} Crypto tools installed!${NC}"
 echo ""
@@ -246,7 +253,7 @@ echo ""
 
 apt-get install -y -qq \
     tesseract-ocr \
-    tesseract-ocr-eng
+    tesseract-ocr-eng 2>/dev/null || true
 
 echo -e "${GREEN}${SUCCESS} OCR tools installed!${NC}"
 echo ""
