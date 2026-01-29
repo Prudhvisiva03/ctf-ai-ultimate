@@ -1,0 +1,114 @@
+{
+    "name": "Cryptography Analysis",
+    "description": "Decode ciphers and encrypted messages - Digital Cyberhunt Crypto challenges",
+    "category": "crypto",
+    "file_types": [".txt", ".enc", ".cipher", ".crypto", ".msg"],
+    "execution_strategy": "sequential",
+    "methods": [
+        {
+            "name": "File Content Read",
+            "description": "Read file content for analysis",
+            "type": "tool",
+            "tool": "cat",
+            "args": ["{target}"],
+            "timeout": 10,
+            "flag_search": true
+        },
+        {
+            "name": "Base64 Decode",
+            "description": "Try Base64 decoding",
+            "type": "tool",
+            "tool": "base64",
+            "args": ["-d", "{target}"],
+            "timeout": 10,
+            "flag_search": true
+        },
+        {
+            "name": "Hex Decode",
+            "description": "Try Hex decoding",
+            "type": "tool",
+            "tool": "xxd",
+            "args": ["-r", "-p", "{target}"],
+            "timeout": 10,
+            "flag_search": true
+        },
+        {
+            "name": "ROT13 Decode",
+            "description": "Try ROT13 decoding",
+            "type": "shell",
+            "command": "cat {target} | tr 'A-Za-z' 'N-ZA-Mn-za-m'",
+            "timeout": 10,
+            "flag_search": true
+        },
+        {
+            "name": "Caesar Cipher Bruteforce",
+            "description": "Try all Caesar cipher shifts",
+            "type": "python",
+            "module": "crypto_analyzer",
+            "function": "caesar_bruteforce",
+            "timeout": 30,
+            "flag_search": true
+        },
+        {
+            "name": "Binary Decode",
+            "description": "Try binary to ASCII",
+            "type": "python",
+            "module": "crypto_analyzer",
+            "function": "try_binary",
+            "timeout": 10,
+            "flag_search": true
+        },
+        {
+            "name": "Morse Code Decode",
+            "description": "Try Morse code decoding",
+            "type": "python",
+            "module": "crypto_analyzer",
+            "function": "try_morse",
+            "timeout": 10,
+            "flag_search": true
+        },
+        {
+            "name": "String Analysis",
+            "description": "Extract all strings",
+            "type": "tool",
+            "tool": "strings",
+            "args": ["-n", "4", "{target}"],
+            "timeout": 30,
+            "flag_search": true
+        },
+        {
+            "name": "Frequency Analysis",
+            "description": "Letter frequency for substitution ciphers",
+            "type": "python",
+            "module": "crypto_analyzer",
+            "function": "frequency_analysis",
+            "timeout": 30,
+            "flag_search": true
+        }
+    ],
+    "flag_patterns": [
+        "digitalcyberhunt\\{[^}]+\\}",
+        "DCH\\{[^}]+\\}",
+        "flag\\{[^}]+\\}",
+        "FLAG\\{[^}]+\\}",
+        "CTF\\{[^}]+\\}"
+    ],
+    "common_encodings": [
+        "Base64",
+        "Base32",
+        "Hex",
+        "Binary",
+        "ROT13",
+        "Caesar (all shifts)",
+        "Morse Code",
+        "URL Encoding",
+        "Atbash Cipher",
+        "Vigenère Cipher"
+    ],
+    "hints": [
+        "💡 Try CyberChef for complex encoding chains",
+        "💡 Look for patterns: == means Base64, %20 means URL encoding",
+        "💡 Frequency analysis helps with substitution ciphers",
+        "💡 XOR with common keys: 0x00, 0xFF, 'key', 'password'"
+    ]
+}

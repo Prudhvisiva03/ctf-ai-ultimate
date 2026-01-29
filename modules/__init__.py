@@ -1,10 +1,12 @@
 """
-CTFHunter Ultimate - Modules Package
-Includes both legacy CTFHunter modules and new AI-powered components
+CTFHunter - AI-Powered CTF Assistant Modules Package
+The World's First Open-Source AI CTF Solver
+Version: 2.1.0
+Author: Prudhvi (CTF Community)
 """
 
-__version__ = '2.0.0'
-__author__ = 'CTF Community'
+__version__ = '2.1.0'
+__author__ = 'Prudhvi'
 
 # Legacy CTFHunter modules
 from .file_scan import FileScanner
@@ -20,6 +22,10 @@ from .reporter import Reporter
 from .ai_engine import AIEngine
 from .playbook_executor import PlaybookExecutor
 
+# OSINT & Forensics modules
+from .osint_scanner import OSINTScanner
+from .crypto_analyzer import analyze_crypto, detect_encoding
+
 __all__ = [
     # Legacy modules
     'FileScanner',
@@ -32,5 +38,9 @@ __all__ = [
     'Reporter',
     # AI modules
     'AIEngine',
-    'PlaybookExecutor'
+    'PlaybookExecutor',
+    # OSINT & Forensics
+    'OSINTScanner',
+    'analyze_crypto',
+    'detect_encoding'
 ]

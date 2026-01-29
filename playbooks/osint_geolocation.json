@@ -1,0 +1,95 @@
+{
+    "name": "OSINT & Geolocation Analysis",
+    "description": "Extract GPS coordinates, metadata, and OSINT data from images and files - Perfect for Digital Cyberhunt",
+    "category": "osint",
+    "file_types": [".jpg", ".jpeg", ".png", ".bmp", ".gif", ".tiff", ".webp", ".heic"],
+    "execution_strategy": "sequential",
+    "methods": [
+        {
+            "name": "GPS Extraction",
+            "description": "Extract GPS coordinates from image EXIF",
+            "type": "tool",
+            "tool": "exiftool",
+            "args": ["-gps*", "-c", "%.6f", "{target}"],
+            "timeout": 30,
+            "flag_search": true
+        },
+        {
+            "name": "Full Metadata Dump",
+            "description": "Extract all metadata for OSINT analysis",
+            "type": "tool",
+            "tool": "exiftool",
+            "args": ["-a", "-u", "-g1", "{target}"],
+            "timeout": 30,
+            "flag_search": true
+        },
+        {
+            "name": "Camera & Device Info",
+            "description": "Extract camera make, model, serial numbers",
+            "type": "tool",
+            "tool": "exiftool",
+            "args": ["-Make", "-Model", "-SerialNumber", "-LensModel", "-Software", "{target}"],
+            "timeout": 30,
+            "flag_search": true
+        },
+        {
+            "name": "Author & Creator Info",
+            "description": "Look for creator/author information",
+            "type": "tool",
+            "tool": "exiftool",
+            "args": ["-Author", "-Creator", "-Artist", "-Copyright", "-OwnerName", "-Comment", "-UserComment", "{target}"],
+            "timeout": 30,
+            "flag_search": true
+        },
+        {
+            "name": "Timestamp Analysis",
+            "description": "Extract all timestamps for timeline",
+            "type": "tool",
+            "tool": "exiftool",
+            "args": ["-time:all", "-d", "%Y-%m-%d %H:%M:%S", "{target}"],
+            "timeout": 30,
+            "flag_search": true
+        },
+        {
+            "name": "String Search",
+            "description": "Search for hidden text and coordinates",
+            "type": "tool",
+            "tool": "strings",
+            "args": ["-n", "6", "{target}"],
+            "timeout": 60,
+            "flag_search": true
+        },
+        {
+            "name": "Hex Analysis",
+            "description": "Look for hidden data in hex",
+            "type": "tool",
+            "tool": "xxd",
+            "args": ["{target}"],
+            "timeout": 60,
+            "flag_search": true
+        },
+        {
+            "name": "Binwalk Scan",
+            "description": "Check for embedded files",
+            "type": "tool",
+            "tool": "binwalk",
+            "args": ["-e", "{target}"],
+            "timeout": 120,
+            "flag_search": true
+        }
+    ],
+    "flag_patterns": [
+        "digitalcyberhunt\\{[^}]+\\}",
+        "DCH\\{[^}]+\\}",
+        "flag\\{[^}]+\\}",
+        "FLAG\\{[^}]+\\}",
+        "CTF\\{[^}]+\\}"
+    ],
+    "hints": [
+        "💡 Check Google Maps with extracted coordinates",
+        "💡 Look for What3Words addresses (word.word.word format)",
+        "💡 Camera serial numbers can identify device owners",
+        "💡 Timestamps can reveal timezone/location",
+        "💡 Author fields may contain usernames to OSINT"
+    ]
+}

@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """
 CTFHunter Ultimate - Professional CTF Automation Tool
-Author: CTF Community
-Version: 1.0
+Author: Prudhvi (CTF Community)
+Version: 2.1.0
 
 A comprehensive tool for automated CTF challenge analysis including:
 - File scanning and type detection
@@ -92,10 +92,13 @@ class CTFHunter:
             'recursive_scan': True,
             'max_recursion_depth': 5,
             'flag_patterns': [
+                r'digitalcyberhunt\{[^}]+\}',
+                r'DCH\{[^}]+\}',
                 r'flag\{[^}]+\}',
                 r'FLAG\{[^}]+\}',
                 r'ctf\{[^}]+\}',
-                r'CTF\{[^}]+\}'
+                r'CTF\{[^}]+\}',
+                r'picoCTF\{[^}]+\}'
             ]
         }
     

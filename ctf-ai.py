@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """
-CTF-AI Ultimate - Interactive AI-Powered CTF Assistant
+CTFHunter AI - Interactive AI-Powered CTF Assistant
 The world's first open-source AI CTF solver with natural language interface
+Version: 2.1.0
+Author: Prudhvi (CTF Community)
 
 Features:
 - Natural language commands
@@ -95,10 +97,13 @@ class CTF_AI_Assistant:
             'ai_model': 'gpt-4',
             'output_directory': 'output',
             'flag_patterns': [
+                r'digitalcyberhunt\{[^}]+\}',
+                r'DCH\{[^}]+\}',
                 r'flag\{[^}]+\}',
                 r'FLAG\{[^}]+\}',
                 r'ctf\{[^}]+\}',
-                r'CTF\{[^}]+\}'
+                r'CTF\{[^}]+\}',
+                r'picoCTF\{[^}]+\}'
             ]
         }
     

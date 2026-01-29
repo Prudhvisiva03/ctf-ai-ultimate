@@ -1,26 +1,64 @@
-# CTF-AI Ultimate 🤖🔥
+# 🏴‍☠️ CTFHunter - AI-Powered CTF Solver
 
-**The World's First Open-Source AI-Powered CTF Assistant**
+<div align="center">
+
+```
+   ██████╗████████╗███████╗██╗  ██╗██╗   ██╗███╗   ██╗████████╗███████╗██████╗ 
+  ██╔════╝╚══██╔══╝██╔════╝██║  ██║██║   ██║████╗  ██║╚══██╔══╝██╔════╝██╔══██╗
+  ██║        ██║   █████╗  ███████║██║   ██║██╔██╗ ██║   ██║   █████╗  ██████╔╝
+  ██║        ██║   ██╔══╝  ██╔══██║██║   ██║██║╚██╗██║   ██║   ██╔══╝  ██╔══██╗
+  ╚██████╗   ██║   ██║     ██║  ██║╚██████╔╝██║ ╚████║   ██║   ███████╗██║  ██║
+   ╚═════╝   ╚═╝   ╚═╝     ╚═╝  ╚═╝ ╚═════╝ ╚═╝  ╚═══╝   ╚═╝   ╚══════╝╚═╝  ╚═╝
+                    🤖 World's First AI-Powered CTF Assistant 🤖
+```
+
+**🌟 The Ultimate Open-Source CTF Automation Tool with AI Intelligence 🌟**
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Platform: Kali Linux](https://img.shields.io/badge/Platform-Kali%20Linux-blue)](https://www.kali.org/)
 [![Python: 3.8+](https://img.shields.io/badge/Python-3.8+-green)](https://www.python.org/)
+[![Version](https://img.shields.io/badge/Version-2.1.0-orange)]()
+[![AI Powered](https://img.shields.io/badge/AI-Powered-purple)]()
+[![Competition Ready](https://img.shields.io/badge/Status-Competition%20Ready-brightgreen)]()
 
-> 🎯 **Just say:** *"solve challenge.png"* and watch AI + Kali tools find the flag automatically!
+<img src="https://img.shields.io/badge/Digital%20Cyberhunt-Ready-red?style=for-the-badge" alt="Digital Cyberhunt Ready">
+
+</div>
 
 ---
 
-## 🚀 What is CTF-AI Ultimate?
+> 🎯 **Just say:** *"solve challenge.png"* — Watch AI + 25+ tools find the flag automatically!
 
-CTF-AI Ultimate is a revolutionary AI-powered CTF analysis tool that combines:
-- 🤖 **Multiple AI Providers** (OpenAI, Ollama, Claude, Groq)
-- 🔧 **20+ Kali Linux Tools** (binwalk, zsteg, steghide, tshark, etc.)
-- 🧠 **Smart Playbook System** (Different methods for each challenge type)
-- 💬 **Natural Language Interface** (Talk to it like a human!)
-- 🎯 **Automatic Flag Discovery** (Real flags, not guesses)
+---
 
-**Instead of:** Manually running 10 different tools and asking ChatGPT every time  
-**Now:** Just type `solve challenge.png` and get the flag!
+## 🚀 Why CTFHunter is UNIQUE
+
+**🌍 World's First** open-source tool that combines:
+
+| Feature | CTFHunter | Others |
+|---------|-----------|--------|
+| 🤖 Multi-AI Support | ✅ 4 providers (OpenAI, Ollama, Claude, Groq) | ❌ Single or none |
+| 🆓 Free Local AI | ✅ Ollama (100% offline) | ❌ Cloud only |
+| 🔧 Tool Integration | ✅ 25+ Kali tools | ❌ Limited |
+| 🗺️ OSINT & Geolocation | ✅ GPS, metadata, coordinates | ❌ Not available |
+| 🔐 Crypto Analysis | ✅ Auto-decode 15+ encodings | ❌ Manual |
+| 📚 Educational Mode | ✅ Shows reasoning | ❌ Black box |
+| 💬 Natural Language | ✅ "solve challenge.png" | ❌ Complex CLI |
+
+---
+
+## 🎯 Built for Digital Cyberhunt CTF
+
+<div align="center">
+
+| Category | CTFHunter Support | Tools Used |
+|----------|------------------|------------|
+| 🗺️ **Geolocation & OSINT** | ✅ Full Support | exiftool, GPS extraction, metadata analysis |
+| 🌐 **Web & AI Security** | ✅ Full Support | curl, requests, web scanning |
+| 🔐 **Cyber & Cryptography** | ✅ Full Support | 15+ encoding decoders, cipher crackers |
+| 📸 **Metadata Forensics** | ✅ Full Support | exiftool, strings, binwalk, steghide |
+
+</div>
 
 ---
 
@@ -28,32 +66,31 @@ CTF-AI Ultimate is a revolutionary AI-powered CTF analysis tool that combines:
 
 ### 🧠 **AI-Powered Intelligence**
 - **Multi-AI Support**: OpenAI (GPT-4), Ollama (FREE), Claude, Groq
-- **Deep Scan Mode**: Exhaustive analysis with recursive extraction, file carving, and multi-tool verification
+- **Deep Scan Mode**: Exhaustive analysis with recursive extraction
 - **Smart Challenge Analysis**: AI determines the best approach
-- **Adaptive Execution**: Tries different methods if first approach fails  
+- **Adaptive Execution**: Tries different methods if first approach fails
 - **Learning Mode**: Shows reasoning so you understand what's happening
 
 ### 🎯 **Challenge-Specific Deep Scans**
 Every CTF type has its own battle-tested workflow:
-- **PNG Steganography** → zsteg (all planes) + chunks check + metadata + strings (ASCII/Wide) + binwalk + foremost + steghide
-
-ide
+- **PNG Steganography** → zsteg + chunks check + metadata + strings + binwalk + foremost + steghide
 - **JPEG Stego** → steghide + stegseek + EXIF + brute-force
 - **PCAP Analysis** → tshark + HTTP objects + TCP streams
 - **Binary Analysis** → checksec + strings + dangerous functions
 - **Archive Analysis** → recursive extraction + nested archives
 - **PDF Forensics** → metadata + hidden text + embedded files
-- **Web Recon** → HTML/JS analysis + robots.txt + path probing
+- **OSINT/Geolocation** → GPS extraction + coordinate decoding + metadata
+- **Cryptography** → Auto-decode Base64, Hex, Caesar, Morse, XOR + more
 
 ### 💬 **Natural Language Interface**
 ```bash
 🤖 You: solve mystery.png
 🤖 AI: Analyzing PNG image... Running zsteg... Found flag!
-✅ FLAG FOUND: flag{st3g4n0gr4phy}
+✅ FLAG FOUND: digitalcyberhunt{st3g4n0gr4phy_m4st3r}
 
-🤖 You: find flag in challenge.zip
-🤖 AI: Extracting archive... Scanning 5 files... Checking nested.txt...
-✅ FLAG FOUND: flag{n3st3d_arch1v3}
+🤖 You: extract gps from photo.jpg
+🤖 AI: Extracting EXIF... GPS found!
+📍 Location: 17.3850, 78.4867 (Hyderabad, India)
 ```
 
 ### 🔧 **20+ Integrated Tools**
@@ -72,8 +109,8 @@ ide
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/ctf-ai-ultimate
-cd ctf-ai-ultimate
+git clone https://github.com/Prudhvisiva03/ctfhunter
+cd ctfhunter
 
 # Install everything (Kali Linux)
 sudo ./install.sh
@@ -229,12 +266,23 @@ ctfhunter https://target.com
 |------|----------------|----------|------------|
 | **PNG Steganography** | `.png`, `.bmp` | `png_stego` | zsteg, exiftool, binwalk, steghide |
 | **JPEG Steganography** | `.jpg`, `.jpeg` | `jpg_stego` | steghide, stegseek, exiftool |
+| **🗺️ OSINT/Geolocation** | `.jpg`, `.png`, images | `osint_geolocation` | exiftool, GPS extraction, metadata |
+| **🔐 Cryptography** | `.txt`, `.enc`, `.cipher` | `crypto_analysis` | Base64, Hex, Caesar, Morse, XOR |
 | **Archives** | `.zip`, `.tar`, `.gz`, `.rar`, `.7z` | `archive_analysis` | unzip, tar, 7z, binwalk |
 | **Network Captures** | `.pcap`, `.pcapng` | `pcap_analysis` | tshark, wireshark |
-| **Binaries** | `.elf`, `.bin`, `` | `binary_analysis` | checksec, strings, gdb |
+| **Binaries** | `.elf`, `.bin` | `binary_analysis` | checksec, strings, gdb |
 | **PDF Files** | `.pdf` | `pdf_forensics` | pdfinfo, pdftotext, exiftool |
 | **Web Challenges** | URLs | `web_recon` | curl, requests, beautifulsoup |
 | **Generic** | Any file | `generic` | file, strings, binwalk, exiftool |
+
+### 🔐 Supported Encodings & Ciphers
+- Base64, Base32, Base16 (Hex)
+- ROT13, Caesar Cipher (all shifts)
+- Morse Code, Binary
+- URL Encoding
+- XOR (common keys)
+- Vigenère Cipher
+- Atbash Cipher
 
 ---
 
@@ -355,7 +403,7 @@ CTF-AI is designed for **learning**, not just solving:
 
 ### **Project Structure**
 ```
-ctf-ai-ultimate/
+ctfhunter/
 ├── ctf-ai.py                 # Main AI assistant
 ├── ctfhunter.py              # Legacy direct scanner
 ├── config.json               # Configuration
@@ -460,8 +508,8 @@ This tool is designed for:
 
 ## 💬 Support
 
-- **Issues**: [GitHub Issues](https://github.com/yourusername/ctf-ai-ultimate/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/yourusername/ctf-ai-ultimate/discussions)
+- **Issues**: [GitHub Issues](https://github.com/Prudhvisiva03/ctfhunter/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/Prudhvisiva03/ctfhunter/discussions)
 - **Documentation**: Check `docs/` folder
 
 ---

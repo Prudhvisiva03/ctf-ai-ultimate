@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 """
 Crypto Analyzer - Auto-detect and decode common encodings
-Supports: Base64, Base32, Hex, ROT13, Caesar, URL encoding, and more
+For Digital Cyberhunt CTF Competition
+Author: Prudhvi (CTFHunter)
+Version: 2.1.0
+
+Supports: Base64, Base32, Hex, ROT13, Caesar, URL encoding, Morse, XOR, Vigenère, and more
 """
 
 import re

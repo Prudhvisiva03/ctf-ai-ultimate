@@ -64,8 +64,23 @@ Thumbs.db
 # Logs
 *.log
 
-# Sensitive
+# Sensitive - IMPORTANT: Never commit API keys!
 config_personal.json
 *.key
 *.pem
 config.json
+.env
+.env.local
+secrets.json
+
+# Build artifacts
+*.pyc
+*.pyo
+*.egg
+*.egg-info/
+dist/
+build/
+
+# Cache
+.cache/
+.pytest_cache/
