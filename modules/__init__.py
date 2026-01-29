@@ -1,11 +1,11 @@
 """
 CTFHunter - AI-Powered CTF Assistant Modules Package
 The World's First Open-Source AI CTF Solver
-Version: 2.1.0
+Version: 2.2.0
 Author: Prudhvi (CTF Community)
 """
 
-__version__ = '2.1.0'
+__version__ = '2.2.0'
 __author__ = 'Prudhvi'
 
 # Legacy CTFHunter modules
@@ -31,6 +31,13 @@ from .qr_scanner import QRScanner, scan_qr
 from .hash_identifier import HashIdentifier, identify_hash, crack_hash
 from .audio_stego import AudioStegoScanner, scan_audio
 from .html_reporter import HTMLReporter, generate_html_report
+
+# New v2.2 modules - Advanced Analysis
+from .encoding_detector import EncodingDetector, analyze_encoding
+from .pattern_extractor import PatternExtractor, extract_patterns
+from .magic_checker import MagicChecker, check_magic
+from .cipher_cracker import CipherCracker, crack_cipher
+from .tool_installer import ToolInstaller
 
 __all__ = [
     # Legacy modules
@@ -58,5 +65,15 @@ __all__ = [
     'AudioStegoScanner',
     'scan_audio',
     'HTMLReporter',
-    'generate_html_report'
+    'generate_html_report',
+    # New v2.2 modules
+    'EncodingDetector',
+    'analyze_encoding',
+    'PatternExtractor',
+    'extract_patterns',
+    'MagicChecker',
+    'check_magic',
+    'CipherCracker',
+    'crack_cipher',
+    'ToolInstaller',
 ]
