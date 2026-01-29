@@ -1,0 +1,60 @@
+{
+    "name": "QR Code Analysis",
+    "description": "Detect and decode QR codes from images - Very common in CTF challenges",
+    "category": "qr",
+    "file_types": [".png", ".jpg", ".jpeg", ".bmp", ".gif", ".webp"],
+    "execution_strategy": "sequential",
+    "methods": [
+        {
+            "name": "File Type Check",
+            "description": "Verify image file type",
+            "type": "tool",
+            "tool": "file",
+            "args": ["{target}"],
+            "timeout": 10,
+            "flag_search": false
+        },
+        {
+            "name": "ZBar QR Decode",
+            "description": "Decode QR codes using zbarimg",
+            "type": "tool",
+            "tool": "zbarimg",
+            "args": ["--raw", "-q", "{target}"],
+            "timeout": 30,
+            "flag_search": true
+        },
+        {
+            "name": "EXIF Check",
+            "description": "Check image metadata",
+            "type": "tool",
+            "tool": "exiftool",
+            "args": ["{target}"],
+            "timeout": 30,
+            "flag_search": true
+        },
+        {
+            "name": "String Search",
+            "description": "Search for hidden strings",
+            "type": "tool",
+            "tool": "strings",
+            "args": ["-n", "6", "{target}"],
+            "timeout": 30,
+            "flag_search": true
+        }
+    ],
+    "flag_patterns": [
+        "digitalcyberhunt\\{[^}]+\\}",
+        "DCH\\{[^}]+\\}",
+        "flag\\{[^}]+\\}",
+        "FLAG\\{[^}]+\\}",
+        "CTF\\{[^}]+\\}",
+        "HTB\\{[^}]+\\}",
+        "THM\\{[^}]+\\}"
+    ],
+    "hints": [
+        "QR codes can be partially damaged - try error correction",
+        "Multiple QR codes may be layered or hidden",
+        "Check for inverted colors (white QR on black background)",
+        "QR codes may be split across multiple images"
+    ]
+}

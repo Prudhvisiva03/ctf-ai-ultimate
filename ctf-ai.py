@@ -1,6 +1,92 @@
 #!/usr/bin/env python3
 """
-CTFHunter AI - Interactive AI-Powered CTF Assistant
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+}    ]        "💡 QR codes may be split across multiple images"        "💡 Check for inverted colors (white QR on black background)",        "💡 Multiple QR codes may be layered or hidden",        "💡 QR codes can be partially damaged - try error correction",    "hints": [    ],        "THM\\{[^}]+\\}"        "HTB\\{[^}]+\\}",        "CTF\\{[^}]+\\}",        "FLAG\\{[^}]+\\}",        "flag\\{[^}]+\\}",        "DCH\\{[^}]+\\}",        "digitalcyberhunt\\{[^}]+\\}",    "flag_patterns": [    ],        }            "flag_search": true            "timeout": 30,            "args": ["-n", "6", "{target}"],            "tool": "strings",            "type": "tool",            "description": "Search for hidden strings",            "name": "String Search",        {        },            "flag_search": true            "timeout": 30,            "args": ["{target}"],            "tool": "exiftool",            "type": "tool",            "description": "Check image metadata",            "name": "EXIF Check",        {        },            "flag_search": true            "timeout": 30,            "args": ["--raw", "-q", "/tmp/enhanced_qr.png"],            "tool": "zbarimg",            "type": "tool",            "description": "Try decoding enhanced image",            "name": "Enhanced QR Decode",        {        },            "flag_search": false            "timeout": 30,            "args": ["{target}", "-contrast", "-sharpen", "0x2", "/tmp/enhanced_qr.png"],            "tool": "convert",            "type": "tool",            "description": "Try to enhance image for better QR detection",            "name": "Image Enhancement",        {        },            "flag_search": true            "timeout": 30,            "args": ["{target}"],            "tool": "zxing",            "type": "tool",            "description": "Decode using zxing library",            "name": "Zxing Decode",        {        },            "flag_search": true            "timeout": 30,            "args": ["--raw", "-q", "{target}"],            "tool": "zbarimg",            "type": "tool",            "description": "Decode QR codes using zbarimg",            "name": "ZBar QR Decode",        {        },            "flag_search": false            "timeout": 10,            "args": ["{target}"],            "tool": "file",            "type": "tool",            "description": "Verify image file type",            "name": "File Type Check",        {    "methods": [    "execution_strategy": "sequential",    "file_types": [".png", ".jpg", ".jpeg", ".bmp", ".gif", ".webp"],    "category": "qr",    "description": "Detect and decode QR codes from images - Very common in CTF challenges",CTFHunter AI - Interactive AI-Powered CTF Assistant
 The world's first open-source AI CTF solver with natural language interface
 Version: 2.1.0
 Author: Prudhvi (CTF Community)
@@ -103,7 +189,11 @@ class CTF_AI_Assistant:
                 r'FLAG\{[^}]+\}',
                 r'ctf\{[^}]+\}',
                 r'CTF\{[^}]+\}',
-                r'picoCTF\{[^}]+\}'
+                r'picoCTF\{[^}]+\}',
+                r'HTB\{[^}]+\}',
+                r'THM\{[^}]+\}',
+                r'OSCTF\{[^}]+\}',
+                r'cyberhunt\{[^}]+\}'
             ]
         }
     

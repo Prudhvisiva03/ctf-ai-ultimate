@@ -98,7 +98,11 @@ class CTFHunter:
                 r'FLAG\{[^}]+\}',
                 r'ctf\{[^}]+\}',
                 r'CTF\{[^}]+\}',
-                r'picoCTF\{[^}]+\}'
+                r'picoCTF\{[^}]+\}',
+                r'HTB\{[^}]+\}',
+                r'THM\{[^}]+\}',
+                r'OSCTF\{[^}]+\}',
+                r'cyberhunt\{[^}]+\}'
             ]
         }
     

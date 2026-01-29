@@ -75,6 +75,9 @@
 Every CTF type has its own battle-tested workflow:
 - **PNG Steganography** → zsteg + chunks check + metadata + strings + binwalk + foremost + steghide
 - **JPEG Stego** → steghide + stegseek + EXIF + brute-force
+- **📱 QR Codes** → zbarimg + zxing + image enhancement + multiple decode attempts
+- **🎵 Audio Stego** → spectrogram analysis + Morse detection + LSB + metadata
+- **🔢 Hash Cracking** → Auto-identify + common password crack + hashcat integration
 - **PCAP Analysis** → tshark + HTTP objects + TCP streams
 - **Binary Analysis** → checksec + strings + dangerous functions
 - **Archive Analysis** → recursive extraction + nested archives
@@ -88,18 +91,30 @@ Every CTF type has its own battle-tested workflow:
 🤖 AI: Analyzing PNG image... Running zsteg... Found flag!
 ✅ FLAG FOUND: digitalcyberhunt{st3g4n0gr4phy_m4st3r}
 
+🤖 You: decode qr from image.png
+🤖 AI: QR Code detected! Content: flag{qr_c0d3_m4st3r}
+
+🤖 You: crack hash 5d41402abc4b2a76b9719d911017c592
+🤖 AI: Hash type: MD5 | Cracked: hello
+
 🤖 You: extract gps from photo.jpg
 🤖 AI: Extracting EXIF... GPS found!
 📍 Location: 17.3850, 78.4867 (Hyderabad, India)
 ```
 
-### 🔧 **20+ Integrated Tools**
+### 🔧 **25+ Integrated Tools**
 - **Steganography**: zsteg, steghide, stegseek, stegoveritas
 - **Forensics**: binwalk, exiftool, strings, foremost
 - **Network**: tshark, wireshark
 - **Binary**: checksec, gdb, radare2, ltrace, strace
 - **PDF**: pdfinfo, pdftotext
 - **Web**: curl, dirsearch, nikto
+- **QR**: zbarimg, zxing, pyzbar
+- **Audio**: sox, ffmpeg, ffprobe
+- **Hash**: hashcat, john
+
+### 📊 **Beautiful HTML Reports**
+Generate professional HTML reports for your CTF analysis - perfect for presentations and documentation!
 
 ---
 
@@ -266,6 +281,9 @@ ctfhunter https://target.com
 |------|----------------|----------|------------|
 | **PNG Steganography** | `.png`, `.bmp` | `png_stego` | zsteg, exiftool, binwalk, steghide |
 | **JPEG Steganography** | `.jpg`, `.jpeg` | `jpg_stego` | steghide, stegseek, exiftool |
+| **� QR Codes** | `.png`, `.jpg`, images | `qr_analysis` | zbarimg, zxing, pyzbar |
+| **🎵 Audio Stego** | `.wav`, `.mp3`, `.flac` | `audio_stego` | sox, ffmpeg, spectrogram |
+| **🔢 Hash Cracking** | hashes | `hash_crack` | hashcat, john, rainbow tables |
 | **🗺️ OSINT/Geolocation** | `.jpg`, `.png`, images | `osint_geolocation` | exiftool, GPS extraction, metadata |
 | **🔐 Cryptography** | `.txt`, `.enc`, `.cipher` | `crypto_analysis` | Base64, Hex, Caesar, Morse, XOR |
 | **Archives** | `.zip`, `.tar`, `.gz`, `.rar`, `.7z` | `archive_analysis` | unzip, tar, 7z, binwalk |
@@ -283,6 +301,15 @@ ctfhunter https://target.com
 - XOR (common keys)
 - Vigenère Cipher
 - Atbash Cipher
+
+### 🚩 Supported Flag Formats
+```
+digitalcyberhunt{...}  DCH{...}
+flag{...}              FLAG{...}
+CTF{...}               ctf{...}
+picoCTF{...}           HTB{...}
+THM{...}               OSCTF{...}
+```
 
 ---
 

@@ -26,6 +26,12 @@ from .playbook_executor import PlaybookExecutor
 from .osint_scanner import OSINTScanner
 from .crypto_analyzer import analyze_crypto, detect_encoding
 
+# New v2.1 modules
+from .qr_scanner import QRScanner, scan_qr
+from .hash_identifier import HashIdentifier, identify_hash, crack_hash
+from .audio_stego import AudioStegoScanner, scan_audio
+from .html_reporter import HTMLReporter, generate_html_report
+
 __all__ = [
     # Legacy modules
     'FileScanner',
@@ -42,5 +48,15 @@ __all__ = [
     # OSINT & Forensics
     'OSINTScanner',
     'analyze_crypto',
-    'detect_encoding'
+    'detect_encoding',
+    # New v2.1 modules
+    'QRScanner',
+    'scan_qr',
+    'HashIdentifier',
+    'identify_hash',
+    'crack_hash',
+    'AudioStegoScanner',
+    'scan_audio',
+    'HTMLReporter',
+    'generate_html_report'
 ]

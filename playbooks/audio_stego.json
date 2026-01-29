@@ -1,0 +1,89 @@
+{
+    "name": "Audio Steganography Analysis",
+    "description": "Analyze audio files for hidden data - Spectrogram, LSB, Morse code",
+    "category": "audio",
+    "file_types": [".wav", ".mp3", ".flac", ".ogg", ".m4a", ".aac"],
+    "execution_strategy": "sequential",
+    "methods": [
+        {
+            "name": "File Type Check",
+            "description": "Verify audio file type",
+            "type": "tool",
+            "tool": "file",
+            "args": ["{target}"],
+            "timeout": 10,
+            "flag_search": false
+        },
+        {
+            "name": "Audio Info",
+            "description": "Get audio file information",
+            "type": "tool",
+            "tool": "ffprobe",
+            "args": ["-v", "quiet", "-show_format", "{target}"],
+            "timeout": 30,
+            "flag_search": true
+        },
+        {
+            "name": "EXIF Metadata",
+            "description": "Extract audio metadata",
+            "type": "tool",
+            "tool": "exiftool",
+            "args": ["{target}"],
+            "timeout": 30,
+            "flag_search": true
+        },
+        {
+            "name": "Generate Spectrogram",
+            "description": "Create spectrogram image to find hidden visual data",
+            "type": "tool",
+            "tool": "sox",
+            "args": ["{target}", "-n", "spectrogram", "-o", "{output_dir}/spectrogram.png"],
+            "timeout": 60,
+            "flag_search": false
+        },
+        {
+            "name": "String Extraction",
+            "description": "Extract strings from audio file",
+            "type": "tool",
+            "tool": "strings",
+            "args": ["-n", "8", "{target}"],
+            "timeout": 60,
+            "flag_search": true
+        },
+        {
+            "name": "Binwalk Check",
+            "description": "Check for embedded files in audio",
+            "type": "tool",
+            "tool": "binwalk",
+            "args": ["-e", "{target}"],
+            "timeout": 120,
+            "flag_search": true
+        },
+        {
+            "name": "Hex Analysis",
+            "description": "Check file header and hex dump",
+            "type": "tool",
+            "tool": "xxd",
+            "args": ["-l", "256", "{target}"],
+            "timeout": 30,
+            "flag_search": true
+        }
+    ],
+    "flag_patterns": [
+        "digitalcyberhunt\\{[^}]+\\}",
+        "DCH\\{[^}]+\\}",
+        "flag\\{[^}]+\\}",
+        "FLAG\\{[^}]+\\}",
+        "CTF\\{[^}]+\\}",
+        "HTB\\{[^}]+\\}",
+        "THM\\{[^}]+\\}"
+    ],
+    "hints": [
+        "💡 Check spectrogram for hidden images or text",
+        "💡 Listen for Morse code or DTMF tones",
+        "💡 Try Sonic Visualiser or Audacity for advanced analysis",
+        "💡 LSB encoding may hide data in audio samples",
+        "💡 Slow down or speed up audio to hear hidden messages",
+        "💡 Reverse the audio - message might be backwards"
+    ]
+}
