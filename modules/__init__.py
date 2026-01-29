@@ -37,6 +37,7 @@ from .encoding_detector import EncodingDetector, analyze_encoding
 from .pattern_extractor import PatternExtractor, extract_patterns
 from .magic_checker import MagicChecker, check_magic
 from .cipher_cracker import CipherCracker, crack_cipher
+from .chain_decoder import ChainDecoder, decode_chain, decode_file
 from .tool_installer import ToolInstaller
 
 __all__ = [
@@ -75,5 +76,8 @@ __all__ = [
     'check_magic',
     'CipherCracker',
     'crack_cipher',
+    'ChainDecoder',
+    'decode_chain',
+    'decode_file',
     'ToolInstaller',
 ]

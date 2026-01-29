@@ -525,6 +525,33 @@ class CTFHunterPro:
             flags = self.search_flags(output)
             results['flags'].extend(flags)
         
+        # 🔗 CHAIN DECODER - Automatically decode nested encodings!
+        print(f"\n   {Colors.MAGENTA}🔗 Running Chain Decoder (auto-decode nested encodings)...{Colors.RESET}")
+        try:
+            from modules.chain_decoder import ChainDecoder
+            decoder = ChainDecoder()
+            chain_results = decoder.analyze_file(filepath, self.custom_flag_patterns[0] if self.custom_flag_patterns else "flag{}")
+            
+            if chain_results.get('flags_found'):
+                print(f"   {Colors.GREEN}🚩 FLAGS FOUND via Chain Decoder!{Colors.RESET}")
+                results['flags'].extend(chain_results['flags_found'])
+            
+            if chain_results.get('decoding_chain'):
+                chains = chain_results['decoding_chain']
+                if chains:
+                    results['findings'].append(f"Found {len(chains)} encoding chain(s)")
+                    for chain in chains[:5]:
+                        if isinstance(chain, dict) and 'chain' in chain:
+                            chain_desc = ' → '.join([s['encoding'] for s in chain['chain']])
+                            results['findings'].append(f"Chain: {chain_desc}")
+                            final = chain.get('final', '')
+                            if final:
+                                results['findings'].append(f"Decoded: {final[:100]}")
+                                flags = self.search_flags(final)
+                                results['flags'].extend(flags)
+        except Exception as e:
+            print(f"   {Colors.YELLOW}⚠️  Chain decoder: {e}{Colors.RESET}")
+        
         # OSINT scan
         try:
             osint = OSINTScanner()
@@ -625,6 +652,40 @@ class CTFHunterPro:
                     results['findings'].append(f"{decoded['method']}: {decoded['result'][:100]}")
                     flags = self.search_flags(decoded['result'])
                     results['flags'].extend(flags)
+            
+            # 🔗 CHAIN DECODER - Auto-decode nested encodings!
+            print(f"\n   {Colors.MAGENTA}🔗 Running Chain Decoder...{Colors.RESET}")
+            try:
+                from modules.chain_decoder import ChainDecoder
+                decoder = ChainDecoder()
+                chain_results = decoder.analyze_string(content, self.custom_flag_patterns[0] if self.custom_flag_patterns else "flag{}")
+                
+                if chain_results.get('flags_found'):
+                    print(f"   {Colors.GREEN}🚩 FLAGS FOUND via Chain Decoder!{Colors.RESET}")
+                    results['flags'].extend(chain_results['flags_found'])
+                
+                if chain_results.get('decoding_chain'):
+                    for step in chain_results['decoding_chain']:
+                        results['findings'].append(f"Decoded ({step['encoding']}): {step['decoded'][:80]}")
+                        flags = self.search_flags(step['decoded'])
+                        results['flags'].extend(flags)
+            except Exception as e:
+                print(f"   {Colors.YELLOW}⚠️  Chain decoder: {e}{Colors.RESET}")
+            
+            # 🔓 CIPHER CRACKER - Auto-crack common ciphers!
+            print(f"\n   {Colors.MAGENTA}🔓 Running Cipher Cracker...{Colors.RESET}")
+            try:
+                from modules.cipher_cracker import CipherCracker
+                cracker = CipherCracker()
+                cipher_results = cracker.analyze(content, self.custom_flag_patterns[0] if self.custom_flag_patterns else "flag{}")
+                
+                if cipher_results.get('cracked_text'):
+                    results['findings'].append(f"Cipher cracked ({cipher_results.get('detected_cipher', 'unknown')})")
+                    flags = self.search_flags(cipher_results['cracked_text'])
+                    results['flags'].extend(flags)
+            except Exception as e:
+                print(f"   {Colors.YELLOW}⚠️  Cipher cracker: {e}{Colors.RESET}")
+                
         except:
             pass
         
