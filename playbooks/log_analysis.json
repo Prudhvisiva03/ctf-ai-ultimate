@@ -1,0 +1,48 @@
+{
+    "name": "Log File Analysis",
+    "description": "Parse and analyze log files for CTF clues",
+    "file_types": [".log", ".txt"],
+    "keywords": ["access.log", "error.log", "auth.log", "syslog", "events"],
+    "steps": [
+        {
+            "name": "detect_log_type",
+            "action": "Identify log format (Apache, Nginx, Syslog, etc.)"
+        },
+        {
+            "name": "extract_ips",
+            "action": "Extract and count IP addresses"
+        },
+        {
+            "name": "extract_urls",
+            "action": "Extract URLs and interesting paths"
+        },
+        {
+            "name": "extract_user_agents",
+            "action": "Extract and analyze User-Agent strings"
+        },
+        {
+            "name": "detect_attacks",
+            "action": "Detect SQL injection, XSS, path traversal attempts",
+            "patterns": {
+                "sql_injection": ["UNION SELECT", "OR 1=1", "DROP TABLE"],
+                "xss": ["<script>", "javascript:", "onerror="],
+                "path_traversal": ["../", "/etc/passwd", "C:\\Windows"],
+                "brute_force": ["Failed password", "authentication failure"]
+            }
+        },
+        {
+            "name": "find_credentials",
+            "action": "Search for exposed credentials and tokens"
+        },
+        {
+            "name": "decode_encoded",
+            "action": "Find and decode Base64, URL-encoded, and hex strings"
+        },
+        {
+            "name": "timeline_analysis",
+            "action": "Analyze time-based patterns for anomalies"
+        }
+    ],
+    "flag_search": true,
+    "tools_required": []
+}

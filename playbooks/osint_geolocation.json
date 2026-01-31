@@ -1,6 +1,6 @@
 {
     "name": "OSINT & Geolocation Analysis",
-    "description": "Extract GPS coordinates, metadata, and OSINT data from images and files - Perfect for Digital Cyberhunt",
+    "description": "Extract GPS coordinates, metadata, and OSINT data from images and files - Includes Online OSINT tools",
     "category": "osint",
     "file_types": [".jpg", ".jpeg", ".png", ".bmp", ".gif", ".tiff", ".webp", ".heic"],
     "execution_strategy": "sequential",
@@ -78,6 +78,57 @@
             "flag_search": true
         }
     ],
+    "online_osint_tools": {
+        "reverse_image_search": [
+            {"name": "Google Images", "url": "https://images.google.com/", "description": "Click camera icon to upload"},
+            {"name": "TinEye", "url": "https://tineye.com/", "description": "Reverse image search engine"},
+            {"name": "Yandex Images", "url": "https://yandex.com/images/", "description": "Often finds results Google misses"},
+            {"name": "Bing Visual Search", "url": "https://www.bing.com/visualsearch", "description": "Microsoft image search"},
+            {"name": "PimEyes", "url": "https://pimeyes.com/", "description": "Face recognition search"},
+            {"name": "FaceCheck.ID", "url": "https://facecheck.id/", "description": "Face search engine"}
+        ],
+        "geolocation": [
+            {"name": "What3Words", "url": "https://what3words.com/", "description": "3-word address to coordinates"},
+            {"name": "Plus Codes", "url": "https://plus.codes/", "description": "Open Location Code decoder"},
+            {"name": "GeoSpy AI", "url": "https://geospy.ai/", "description": "AI-powered image geolocation"},
+            {"name": "Picarta", "url": "https://picarta.ai/", "description": "AI photo location finder"},
+            {"name": "GeoHack", "url": "https://geohack.toolforge.org/", "description": "Coordinate converter"}
+        ],
+        "username_search": [
+            {"name": "Sherlock", "url": "pip install sherlock-project", "description": "Username checker CLI"},
+            {"name": "Maigret", "url": "pip install maigret", "description": "Advanced username search"},
+            {"name": "NameChk", "url": "https://namechk.com/", "description": "Username availability checker"},
+            {"name": "KnowEm", "url": "https://knowem.com/", "description": "Brand/username search"},
+            {"name": "UserSearch", "url": "https://usersearch.org/", "description": "User profile search"}
+        ],
+        "ip_domain": [
+            {"name": "Shodan", "url": "https://www.shodan.io/", "description": "Internet device search engine"},
+            {"name": "Censys", "url": "https://search.censys.io/", "description": "Internet-wide scanning"},
+            {"name": "VirusTotal", "url": "https://www.virustotal.com/", "description": "URL/IP/file analysis"},
+            {"name": "SecurityTrails", "url": "https://securitytrails.com/", "description": "DNS history"},
+            {"name": "crt.sh", "url": "https://crt.sh/", "description": "Certificate transparency search"},
+            {"name": "DNSDumpster", "url": "https://dnsdumpster.com/", "description": "DNS reconnaissance"}
+        ],
+        "email_phone": [
+            {"name": "Hunter.io", "url": "https://hunter.io/", "description": "Email finder & verifier"},
+            {"name": "HaveIBeenPwned", "url": "https://haveibeenpwned.com/", "description": "Breach checker"},
+            {"name": "EmailRep", "url": "https://emailrep.io/", "description": "Email reputation"},
+            {"name": "TrueCaller", "url": "https://www.truecaller.com/", "description": "Phone number lookup"},
+            {"name": "NumVerify", "url": "https://numverify.com/", "description": "Phone validation"}
+        ],
+        "social_media": [
+            {"name": "Social Searcher", "url": "https://www.social-searcher.com/", "description": "Social media search"},
+            {"name": "Twint", "url": "pip install twint", "description": "Twitter scraping"},
+            {"name": "Instaloader", "url": "pip install instaloader", "description": "Instagram downloader"},
+            {"name": "OSINTgram", "url": "https://github.com/Datalux/Osintgram", "description": "Instagram OSINT"}
+        ],
+        "osint_frameworks": [
+            {"name": "OSINT Framework", "url": "https://osintframework.com/", "description": "Collection of OSINT tools"},
+            {"name": "IntelX", "url": "https://intelx.io/", "description": "Intelligence search engine"},
+            {"name": "SpiderFoot", "url": "https://www.spiderfoot.net/", "description": "OSINT automation"},
+            {"name": "Maltego", "url": "https://www.maltego.com/", "description": "Link analysis tool"}
+        ]
+    },
     "flag_patterns": [
         "digitalcyberhunt\\{[^}]+\\}",
         "DCH\\{[^}]+\\}",
@@ -90,6 +141,10 @@
         "💡 Look for What3Words addresses (word.word.word format)",
         "💡 Camera serial numbers can identify device owners",
         "💡 Timestamps can reveal timezone/location",
-        "💡 Author fields may contain usernames to OSINT"
+        "💡 Author fields may contain usernames to OSINT",
+        "💡 Use reverse image search to find image origin",
+        "💡 Check social media handles found in metadata",
+        "💡 Try GeoSpy.ai for AI-powered image geolocation",
+        "💡 Use Sherlock to check usernames across 300+ sites"
     ]
 }

@@ -1,0 +1,53 @@
+{
+    "name": "Video Steganography Analysis",
+    "description": "Extract hidden data from video files",
+    "file_types": [".mp4", ".avi", ".mkv", ".mov", ".webm", ".flv"],
+    "steps": [
+        {
+            "name": "metadata_extraction",
+            "tool": "ffprobe",
+            "action": "Extract video metadata"
+        },
+        {
+            "name": "exif_analysis",
+            "tool": "exiftool",
+            "action": "Check EXIF metadata for hidden data"
+        },
+        {
+            "name": "frame_extraction",
+            "tool": "ffmpeg",
+            "action": "Extract key frames",
+            "options": {
+                "interval": 1,
+                "max_frames": 50
+            }
+        },
+        {
+            "name": "audio_extraction",
+            "tool": "ffmpeg",
+            "action": "Extract all audio tracks"
+        },
+        {
+            "name": "subtitle_extraction",
+            "tool": "ffmpeg",
+            "action": "Extract subtitle tracks"
+        },
+        {
+            "name": "spectrogram_analysis",
+            "tool": "sox",
+            "action": "Generate audio spectrograms"
+        },
+        {
+            "name": "frame_stego_check",
+            "tool": "zsteg",
+            "action": "Check extracted frames for LSB steganography"
+        },
+        {
+            "name": "appended_data_check",
+            "tool": "custom",
+            "action": "Check for data appended after video container"
+        }
+    ],
+    "flag_search": true,
+    "tools_required": ["ffmpeg", "ffprobe", "exiftool", "sox", "zsteg"]
+}

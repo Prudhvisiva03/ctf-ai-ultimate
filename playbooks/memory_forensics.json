@@ -1,0 +1,49 @@
+{
+    "name": "Memory Forensics Analysis",
+    "description": "Analyze memory dumps using Volatility",
+    "file_types": [".raw", ".mem", ".vmem", ".dmp", ".lime"],
+    "steps": [
+        {
+            "name": "detect_profile",
+            "tool": "volatility",
+            "action": "Detect memory image profile"
+        },
+        {
+            "name": "list_processes",
+            "tool": "volatility",
+            "action": "List running processes",
+            "command": "pslist"
+        },
+        {
+            "name": "dump_credentials",
+            "tool": "volatility",
+            "action": "Extract password hashes",
+            "command": "hashdump"
+        },
+        {
+            "name": "network_connections",
+            "tool": "volatility",
+            "action": "Get network connections",
+            "command": "netscan"
+        },
+        {
+            "name": "command_history",
+            "tool": "volatility",
+            "action": "Extract command history",
+            "command": "cmdscan"
+        },
+        {
+            "name": "file_scan",
+            "tool": "volatility",
+            "action": "Scan for interesting files",
+            "command": "filescan"
+        },
+        {
+            "name": "strings_analysis",
+            "tool": "strings",
+            "action": "Extract strings and search for flags"
+        }
+    ],
+    "flag_search": true,
+    "tools_required": ["volatility", "strings"]
+}

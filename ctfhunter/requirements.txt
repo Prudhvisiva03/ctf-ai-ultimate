@@ -1,0 +1,13 @@
+# CTFHunter Requirements
+# ======================
+# Python dependencies for CTFHunter
+
+# Core dependencies
+rich>=13.0.0              # Beautiful terminal output
+python-magic>=0.4.27      # File type detection
+
+# Optional but recommended
+# pillow>=9.0.0           # Image processing
+# pycryptodome>=3.15.0    # Cryptography support
+# requests>=2.28.0        # HTTP requests for web module
+# scapy>=2.5.0            # Network packet manipulation

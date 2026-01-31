@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 CTFHunter Ultimate - Professional CTF Automation Tool
 Author: Prudhvi (CTF Community)
@@ -17,6 +18,29 @@ A comprehensive tool for automated CTF challenge analysis including:
 
 import sys
 import os
+
+# Fix Windows UTF-8 encoding - comprehensive approach
+if sys.platform.startswith('win'):
+    # Set environment variable for Python encoding
+    os.environ['PYTHONIOENCODING'] = 'utf-8'
+    
+    try:
+        import ctypes
+        kernel32 = ctypes.windll.kernel32
+        # Enable VT mode for ANSI colors
+        kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
+        # Set console output codepage to UTF-8
+        ctypes.windll.kernel32.SetConsoleOutputCP(65001)
+    except:
+        pass
+    
+    # Reconfigure stdout/stderr with UTF-8
+    import io
+    if hasattr(sys.stdout, 'buffer'):
+        sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8', errors='replace')
+    if hasattr(sys.stderr, 'buffer'):
+        sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8', errors='replace')
+
 import argparse
 import json
 from pathlib import Path
@@ -33,6 +57,69 @@ from modules.pdf_scan import PDFScanner
 from modules.web_scan import WebScanner
 from modules.ai_helper import AIHelper
 from modules.reporter import Reporter
+
+# New Enhanced Modules
+try:
+    from modules.memory_forensics import MemoryForensics
+    MEMORY_FORENSICS_AVAILABLE = True
+except ImportError:
+    MEMORY_FORENSICS_AVAILABLE = False
+
+try:
+    from modules.video_stego import VideoSteganography
+    VIDEO_STEGO_AVAILABLE = True
+except ImportError:
+    VIDEO_STEGO_AVAILABLE = False
+
+try:
+    from modules.log_analyzer import LogAnalyzer
+    LOG_ANALYZER_AVAILABLE = True
+except ImportError:
+    LOG_ANALYZER_AVAILABLE = False
+
+try:
+    from modules.malware_analyzer import MalwareAnalyzer
+    MALWARE_ANALYZER_AVAILABLE = True
+except ImportError:
+    MALWARE_ANALYZER_AVAILABLE = False
+
+try:
+    from modules.advanced_ciphers import AdvancedCiphers
+    ADVANCED_CIPHERS_AVAILABLE = True
+except ImportError:
+    ADVANCED_CIPHERS_AVAILABLE = False
+
+# Deep Analysis Modules (In-Depth Analysis)
+try:
+    from modules.deep_analyzer import DeepAnalyzer
+    DEEP_ANALYZER_AVAILABLE = True
+except ImportError:
+    DEEP_ANALYZER_AVAILABLE = False
+
+try:
+    from modules.deep_stego import DeepStegoAnalyzer
+    DEEP_STEGO_AVAILABLE = True
+except ImportError:
+    DEEP_STEGO_AVAILABLE = False
+
+try:
+    from modules.deep_crypto import DeepCryptoAnalyzer
+    DEEP_CRYPTO_AVAILABLE = True
+except ImportError:
+    DEEP_CRYPTO_AVAILABLE = False
+
+try:
+    from modules.deep_forensics import DeepForensicsAnalyzer
+    DEEP_FORENSICS_AVAILABLE = True
+except ImportError:
+    DEEP_FORENSICS_AVAILABLE = False
+
+try:
+    from modules.deep_network import DeepNetworkAnalyzer
+    DEEP_NETWORK_AVAILABLE = True
+except ImportError:
+    DEEP_NETWORK_AVAILABLE = False
+
 from modules.colors import (
     Colors, Emoji, colorize, success, error, warning, info,
     header, highlight, code, path as color_path, flag_text,
@@ -58,6 +145,30 @@ class CTFHunter:
         self.web_scanner = WebScanner(self.config)
         self.ai_helper = AIHelper(self.config)
         self.reporter = Reporter(self.config)
+        
+        # Initialize new enhanced modules
+        if MEMORY_FORENSICS_AVAILABLE:
+            self.memory_forensics = MemoryForensics(self.config)
+        if VIDEO_STEGO_AVAILABLE:
+            self.video_stego = VideoSteganography(self.config)
+        if LOG_ANALYZER_AVAILABLE:
+            self.log_analyzer = LogAnalyzer(self.config)
+        if MALWARE_ANALYZER_AVAILABLE:
+            self.malware_analyzer = MalwareAnalyzer(self.config)
+        if ADVANCED_CIPHERS_AVAILABLE:
+            self.advanced_ciphers = AdvancedCiphers(self.config)
+        
+        # Initialize Deep Analysis Modules (In-Depth Analysis)
+        if DEEP_ANALYZER_AVAILABLE:
+            self.deep_analyzer = DeepAnalyzer(self.config)
+        if DEEP_STEGO_AVAILABLE:
+            self.deep_stego = DeepStegoAnalyzer(self.config)
+        if DEEP_CRYPTO_AVAILABLE:
+            self.deep_crypto = DeepCryptoAnalyzer(self.config)
+        if DEEP_FORENSICS_AVAILABLE:
+            self.deep_forensics = DeepForensicsAnalyzer(self.config)
+        if DEEP_NETWORK_AVAILABLE:
+            self.deep_network = DeepNetworkAnalyzer(self.config)
         
         # Create output directory
         output_dir = self.config.get('output_directory', 'output')
@@ -130,6 +241,18 @@ class CTFHunter:
         if ext in ['.png', '.jpg', '.jpeg', '.bmp', '.gif']:
             return 'image'
         
+        # Video types (steganography)
+        if ext in ['.mp4', '.avi', '.mkv', '.mov', '.webm', '.flv']:
+            return 'video'
+        
+        # Memory dump types
+        if ext in ['.raw', '.mem', '.vmem', '.dmp', '.lime']:
+            return 'memory'
+        
+        # Log files
+        if ext in ['.log'] or 'log' in Path(filepath).stem.lower():
+            return 'log'
+        
         # PCAP types
         if ext in ['.pcap', '.pcapng', '.cap']:
             return 'pcap'
@@ -176,12 +299,56 @@ class CTFHunter:
         print_info("Performing generic file scan...", emoji=False)
         scan_results = self.file_scanner.scan(filepath)
         
+        # DEEP ANALYSIS - Run comprehensive in-depth analysis
+        print()
+        print(colorize(f"{Emoji.SEARCH} Running IN-DEPTH analysis (byte-level, multi-layer)...", Colors.BRIGHT_MAGENTA, bold=True))
+        
+        if DEEP_ANALYZER_AVAILABLE:
+            try:
+                deep_results = self.deep_analyzer.analyze(filepath)
+                scan_results['deep_analysis'] = deep_results
+                
+                # If flags found in deep analysis, add them
+                if deep_results.get('flags_found'):
+                    if 'flags' not in scan_results:
+                        scan_results['flags'] = []
+                    scan_results['flags'].extend(deep_results['flags_found'])
+            except Exception as e:
+                print_warning(f"Deep analysis error: {str(e)}", emoji=True)
+        
+        if DEEP_FORENSICS_AVAILABLE:
+            try:
+                forensics_results = self.deep_forensics.analyze(filepath)
+                scan_results['deep_forensics'] = forensics_results
+                
+                if forensics_results.get('flags_found'):
+                    if 'flags' not in scan_results:
+                        scan_results['flags'] = []
+                    scan_results['flags'].extend(forensics_results['flags_found'])
+            except Exception as e:
+                print_warning(f"Deep forensics error: {str(e)}", emoji=True)
+        
         # Perform specialized scans based on type
         if challenge_type == 'image':
             print()
             print(colorize(f"{Emoji.IMAGE} Detected image file - running steganography analysis...", Colors.BRIGHT_MAGENTA, bold=True))
             stego_results = self.stego_scanner.scan(filepath)
             scan_results.update(stego_results)
+            
+            # DEEP STEGO ANALYSIS
+            if DEEP_STEGO_AVAILABLE:
+                print()
+                print(colorize(f"{Emoji.SEARCH} Running IN-DEPTH steganography analysis...", Colors.BRIGHT_CYAN, bold=True))
+                try:
+                    deep_stego_results = self.deep_stego.analyze(filepath)
+                    scan_results['deep_stego'] = deep_stego_results
+                    
+                    if deep_stego_results.get('flags_found'):
+                        if 'flags' not in scan_results:
+                            scan_results['flags'] = []
+                        scan_results['flags'].extend(deep_stego_results['flags_found'])
+                except Exception as e:
+                    print_warning(f"Deep stego error: {str(e)}", emoji=True)
             
         elif challenge_type == 'archive':
             print()
@@ -195,6 +362,22 @@ class CTFHunter:
             pcap_results = self.pcap_scanner.scan(filepath)
             scan_results.update(pcap_results)
             
+            # DEEP NETWORK ANALYSIS
+            if DEEP_NETWORK_AVAILABLE:
+                print()
+                print(colorize(f"{Emoji.SEARCH} Running IN-DEPTH network analysis...", Colors.BRIGHT_CYAN, bold=True))
+                try:
+                    output_dir = self.config.get('output_directory', 'output')
+                    deep_network_results = self.deep_network.analyze(filepath, output_dir)
+                    scan_results['deep_network'] = deep_network_results
+                    
+                    if deep_network_results.get('flags_found'):
+                        if 'flags' not in scan_results:
+                            scan_results['flags'] = []
+                        scan_results['flags'].extend(deep_network_results['flags_found'])
+                except Exception as e:
+                    print_warning(f"Deep network error: {str(e)}", emoji=True)
+            
         elif challenge_type == 'elf':
             print()
             print(colorize(f"{Emoji.CODE} Detected ELF binary - running reverse engineering reconnaissance...", Colors.BRIGHT_GREEN, bold=True))
@@ -206,6 +389,81 @@ class CTFHunter:
             print(colorize(f"{Emoji.DOCUMENT} Detected PDF - running forensics analysis...", Colors.BRIGHT_RED, bold=True))
             pdf_results = self.pdf_scanner.scan(filepath)
             scan_results.update(pdf_results)
+        
+        elif challenge_type == 'video':
+            print()
+            print(colorize(f"{Emoji.VIDEO} Detected video file - running video steganography analysis...", Colors.BRIGHT_MAGENTA, bold=True))
+            if VIDEO_STEGO_AVAILABLE:
+                video_results = self.video_stego.analyze(filepath)
+                scan_results['video_analysis'] = video_results
+            else:
+                print_warning("Video steganography module not available", emoji=True)
+        
+        elif challenge_type == 'memory':
+            print()
+            print(colorize(f"{Emoji.MEMORY} Detected memory dump - running memory forensics...", Colors.BRIGHT_CYAN, bold=True))
+            if MEMORY_FORENSICS_AVAILABLE:
+                memory_results = self.memory_forensics.analyze(filepath)
+                scan_results['memory_analysis'] = memory_results
+            else:
+                print_warning("Memory forensics module not available", emoji=True)
+        
+        elif challenge_type == 'log':
+            print()
+            print(colorize(f"{Emoji.LOG} Detected log file - running log analysis...", Colors.BRIGHT_YELLOW, bold=True))
+            if LOG_ANALYZER_AVAILABLE:
+                log_results = self.log_analyzer.analyze(filepath)
+                scan_results['log_analysis'] = log_results
+            else:
+                print_warning("Log analyzer module not available", emoji=True)
+        
+        elif challenge_type == 'exe':
+            print()
+            print(colorize(f"{Emoji.MALWARE} Detected executable - running malware analysis...", Colors.BRIGHT_RED, bold=True))
+            if MALWARE_ANALYZER_AVAILABLE:
+                malware_results = self.malware_analyzer.analyze(filepath)
+                scan_results['malware_analysis'] = malware_results
+            else:
+                print_warning("Malware analyzer module not available", emoji=True)
+        
+        # Try crypto analysis on any extracted text/strings
+        if DEEP_CRYPTO_AVAILABLE:
+            print()
+            print(colorize(f"{Emoji.KEY} Running IN-DEPTH cryptographic analysis on extracted strings...", Colors.BRIGHT_YELLOW, bold=True))
+            try:
+                # Check if any base64 or encoded strings were found
+                strings_to_analyze = []
+                
+                # Get base64 candidates from deep analysis
+                if scan_results.get('deep_analysis', {}).get('encoded_strings'):
+                    strings_to_analyze.extend(scan_results['deep_analysis']['encoded_strings'])
+                
+                # Get strings from file scan
+                if scan_results.get('strings'):
+                    for s in scan_results.get('strings', [])[:50]:  # Limit to 50
+                        if len(s) > 10:
+                            strings_to_analyze.append(s)
+                
+                # Analyze suspicious strings
+                crypto_results = []
+                for text in strings_to_analyze[:20]:  # Analyze top 20
+                    if isinstance(text, str) and len(text) > 5:
+                        result = self.deep_crypto.analyze(text)
+                        if result.get('flags_found') or result.get('successful_decryptions'):
+                            crypto_results.append(result)
+                            
+                            if result.get('flags_found'):
+                                if 'flags' not in scan_results:
+                                    scan_results['flags'] = []
+                                scan_results['flags'].extend(result['flags_found'])
+                
+                scan_results['deep_crypto'] = crypto_results
+            except Exception as e:
+                print_warning(f"Deep crypto error: {str(e)}", emoji=True)
+        
+        # Deduplicate flags
+        if 'flags' in scan_results:
+            scan_results['flags'] = list(set(scan_results['flags']))
         
         return scan_results
     
@@ -298,11 +556,12 @@ def print_banner():
     print(colorize("║        ╚═════╝   ╚═╝   ╚═╝     ╚═╝  ╚═╝ ╚═════╝          ║", Colors.BRIGHT_MAGENTA, bold=True))
     print(colorize("║                                                           ║", Colors.BRIGHT_CYAN))
     print(colorize("║              ULTIMATE CTF AUTOMATION TOOL                ║", Colors.BRIGHT_YELLOW, bold=True))
-    print(colorize("║                     Version 1.0                          ║", Colors.BRIGHT_CYAN))
+    print(colorize("║            Version 2.5 - IN-DEPTH ANALYSIS               ║", Colors.BRIGHT_GREEN, bold=True))
     print(colorize("║                                                           ║", Colors.BRIGHT_CYAN))
     print(colorize("╚═══════════════════════════════════════════════════════════╝", Colors.BRIGHT_CYAN))
     print()
     print(colorize("Professional CTF Challenge Analysis & Flag Discovery Tool", Colors.BRIGHT_WHITE).center(70))
+    print(colorize("DEEP ANALYSIS: Byte-level | Multi-layer | Comprehensive", Colors.BRIGHT_GREEN).center(70))
     print()
 
 
@@ -346,7 +605,7 @@ def main():
     parser.add_argument(
         '--version',
         action='version',
-        version='CTFHunter Ultimate 1.0'
+        version='CTFHunter Ultimate 2.5 - IN-DEPTH ANALYSIS'
     )
     
     args = parser.parse_args()

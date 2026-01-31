@@ -1,11 +1,11 @@
 """
 CTFHunter - AI-Powered CTF Assistant Modules Package
 The World's First Open-Source AI CTF Solver
-Version: 2.2.0
+Version: 3.0.0
 Author: Prudhvi (CTF Community)
 """
 
-__version__ = '2.2.0'
+__version__ = '3.0.0'
 __author__ = 'Prudhvi'
 
 # Legacy CTFHunter modules
@@ -20,6 +20,7 @@ from .reporter import Reporter
 
 # New AI-powered modules
 from .ai_engine import AIEngine
+from .ai_solver import AISolver
 from .playbook_executor import PlaybookExecutor
 
 # OSINT & Forensics modules
@@ -52,6 +53,7 @@ __all__ = [
     'Reporter',
     # AI modules
     'AIEngine',
+    'AISolver',
     'PlaybookExecutor',
     # OSINT & Forensics
     'OSINTScanner',

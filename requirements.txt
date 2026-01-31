@@ -9,6 +9,9 @@ python-magic-bin==0.4.14; sys_platform == 'win32'
 requests==2.31.0
 beautifulsoup4==4.12.2
 
+# Rich console output
+rich>=13.0.0
+
 # AI Providers (Install based on your choice)
 # OpenAI (GPT-4)
 openai==1.6.1

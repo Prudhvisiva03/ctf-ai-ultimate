@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Color Utility Module for CTF-AI Ultimate
 Provides cross-platform colored terminal output with emoji support
@@ -11,12 +12,16 @@ from typing import Optional
 # Check if running on Windows
 IS_WINDOWS = sys.platform.startswith('win')
 
-# Enable ANSI colors on Windows 10+
+# Fix Windows UTF-8 encoding - use safer approach
 if IS_WINDOWS:
     try:
+        # Try to enable UTF-8 mode
         import ctypes
         kernel32 = ctypes.windll.kernel32
+        # Enable VT mode for ANSI colors
         kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
+        # Set console output codepage to UTF-8
+        ctypes.windll.kernel32.SetConsoleOutputCP(65001)
     except:
         pass
 
@@ -74,67 +79,145 @@ class Colors:
 
 
 class Emoji:
-    """Common emojis for terminal output"""
-    # Status
-    SUCCESS = '✅'
-    ERROR = '❌'
-    WARNING = '⚠️'
-    INFO = 'ℹ️'
-    QUESTION = '❓'
+    """Common emojis for terminal output with ASCII fallback on Windows"""
     
-    # Actions
-    SEARCH = '🔍'
-    SCAN = '🔎'
-    ANALYZE = '🔬'
-    EXTRACT = '📤'
-    DOWNLOAD = '⬇️'
-    UPLOAD = '⬆️'
-    
-    # Files
-    FILE = '📄'
-    FOLDER = '📁'
-    IMAGE = '🖼️'
-    ARCHIVE = '📦'
-    DOCUMENT = '📝'
-    CODE = '💻'
-    
-    # Security
-    LOCK = '🔒'
-    UNLOCK = '🔓'
-    KEY = '🔑'
-    SHIELD = '🛡️'
-    FLAG = '🚩'
-    TARGET = '🎯'
-    
-    # Progress
-    ROCKET = '🚀'
-    FIRE = '🔥'
-    SPARKLES = '✨'
-    STAR = '⭐'
-    TROPHY = '🏆'
-    
-    # Tools
-    WRENCH = '🔧'
-    HAMMER = '🔨'
-    GEAR = '⚙️'
-    TOOL = '🛠️'
-    
-    # Network
-    GLOBE = '🌐'
-    LINK = '🔗'
-    WIFI = '📡'
-    
-    # AI
-    ROBOT = '🤖'
-    BRAIN = '🧠'
-    MAGIC = '🪄'
-    
-    # Misc
-    CLOCK = '⏰'
-    HOURGLASS = '⏳'
-    CHART = '📊'
-    CLEAN = '🧹'
-    PACKAGE = '📦'
+    # Use ASCII on Windows to avoid encoding issues
+    if IS_WINDOWS:
+        # Status
+        SUCCESS = '[OK]'
+        ERROR = '[X]'
+        WARNING = '[!]'
+        INFO = '[i]'
+        QUESTION = '[?]'
+        
+        # Actions
+        SEARCH = '[?]'
+        SCAN = '[>]'
+        ANALYZE = '[~]'
+        EXTRACT = '[^]'
+        DOWNLOAD = '[v]'
+        UPLOAD = '[^]'
+        
+        # Files
+        FILE = '[ ]'
+        FOLDER = '[D]'
+        IMAGE = '[I]'
+        ARCHIVE = '[Z]'
+        DOCUMENT = '[D]'
+        CODE = '[C]'
+        
+        # Security
+        LOCK = '[L]'
+        UNLOCK = '[U]'
+        KEY = '[K]'
+        SHIELD = '[S]'
+        FLAG = '[F]'
+        TARGET = '[*]'
+        
+        # Progress
+        ROCKET = '[>]'
+        FIRE = '[!]'
+        SPARKLES = '[*]'
+        STAR = '[*]'
+        TROPHY = '[W]'
+        
+        # Tools
+        WRENCH = '[T]'
+        HAMMER = '[T]'
+        GEAR = '[G]'
+        TOOL = '[T]'
+        
+        # Network
+        GLOBE = '[W]'
+        LINK = '[L]'
+        WIFI = '[N]'
+        
+        # AI
+        ROBOT = '[AI]'
+        BRAIN = '[AI]'
+        MAGIC = '[M]'
+        
+        # Misc
+        CLOCK = '[T]'
+        HOURGLASS = '[...]'
+        CHART = '[#]'
+        CLEAN = '[C]'
+        PACKAGE = '[P]'
+        
+        # New module emojis
+        VIDEO = '[V]'
+        MEMORY = '[M]'
+        LOG = '[L]'
+        MALWARE = '[!]'
+        CIPHER = '[E]'
+    else:
+        # Status
+        SUCCESS = '✅'
+        ERROR = '❌'
+        WARNING = '⚠️'
+        INFO = 'ℹ️'
+        QUESTION = '❓'
+        
+        # Actions
+        SEARCH = '🔍'
+        SCAN = '🔎'
+        ANALYZE = '🔬'
+        EXTRACT = '📤'
+        DOWNLOAD = '⬇️'
+        UPLOAD = '⬆️'
+        
+        # Files
+        FILE = '📄'
+        FOLDER = '📁'
+        IMAGE = '🖼️'
+        ARCHIVE = '📦'
+        DOCUMENT = '📝'
+        CODE = '💻'
+        
+        # Security
+        LOCK = '🔒'
+        UNLOCK = '🔓'
+        KEY = '🔑'
+        SHIELD = '🛡️'
+        FLAG = '🚩'
+        TARGET = '🎯'
+        
+        # Progress
+        ROCKET = '🚀'
+        FIRE = '🔥'
+        SPARKLES = '✨'
+        STAR = '⭐'
+        TROPHY = '🏆'
+        
+        # Tools
+        WRENCH = '🔧'
+        HAMMER = '🔨'
+        GEAR = '⚙️'
+        TOOL = '🛠️'
+        
+        # Network
+        GLOBE = '🌐'
+        LINK = '🔗'
+        WIFI = '📡'
+        
+        # AI
+        ROBOT = '🤖'
+        BRAIN = '🧠'
+        MAGIC = '🪄'
+        
+        # Misc
+        CLOCK = '⏰'
+        HOURGLASS = '⏳'
+        CHART = '📊'
+        CLEAN = '🧹'
+        PACKAGE = '📦'
+        
+        # New module emojis
+        VIDEO = '🎬'
+        MEMORY = '💾'
+        LOG = '📋'
+        MALWARE = '🦠'
+        CIPHER = '🔐'
 
 
 def colorize(text: str, color: str, bold: bool = False, underline: bool = False) -> str:
@@ -226,13 +309,21 @@ def separator(char: str = "=", length: int = 60, color: str = Colors.BRIGHT_BLAC
 def box(text: str, width: int = 60, color: str = Colors.BRIGHT_CYAN) -> str:
     """Create a box around text"""
     lines = text.split('\n')
-    top = "╔" + "═" * (width - 2) + "╗"
-    bottom = "╚" + "═" * (width - 2) + "╝"
+    
+    # Use ASCII characters on Windows, Unicode on other systems
+    if IS_WINDOWS:
+        top = "+" + "-" * (width - 2) + "+"
+        bottom = "+" + "-" * (width - 2) + "+"
+        border = "|"
+    else:
+        top = "╔" + "═" * (width - 2) + "╗"
+        bottom = "╚" + "═" * (width - 2) + "╝"
+        border = "║"
     
     result = [colorize(top, color)]
     for line in lines:
         padding = width - len(line) - 4
-        result.append(colorize(f"║ {line}{' ' * padding} ║", color))
+        result.append(colorize(f"{border} {line}{' ' * padding} {border}", color))
     result.append(colorize(bottom, color))
     
     return '\n'.join(result)
@@ -300,13 +391,23 @@ def banner(title: str, subtitle: str = "", width: int = 70) -> str:
     """
     lines = []
     
+    # Use ASCII on Windows, Unicode on other systems
+    if IS_WINDOWS:
+        top_char = "="
+        bottom_char = "="
+        border = "|"
+    else:
+        top_char = "═"
+        bottom_char = "═"
+        border = "║"
+    
     # Top border
-    lines.append(colorize("╔" + "═" * (width - 2) + "╗", Colors.BRIGHT_CYAN))
+    lines.append(colorize(border + top_char * (width - 2) + border, Colors.BRIGHT_CYAN))
     
     # Title
     title_padding = (width - len(title) - 4) // 2
     lines.append(colorize(
-        f"║{' ' * title_padding}{title}{' ' * (width - len(title) - title_padding - 2)}║",
+        f"{border}{' ' * title_padding}{title}{' ' * (width - len(title) - title_padding - 2)}{border}",
         Colors.BRIGHT_MAGENTA, bold=True
     ))
     
@@ -314,12 +415,12 @@ def banner(title: str, subtitle: str = "", width: int = 70) -> str:
     if subtitle:
         sub_padding = (width - len(subtitle) - 4) // 2
         lines.append(colorize(
-            f"║{' ' * sub_padding}{subtitle}{' ' * (width - len(subtitle) - sub_padding - 2)}║",
+            f"{border}{' ' * sub_padding}{subtitle}{' ' * (width - len(subtitle) - sub_padding - 2)}{border}",
             Colors.BRIGHT_CYAN
         ))
     
     # Bottom border
-    lines.append(colorize("╚" + "═" * (width - 2) + "╝", Colors.BRIGHT_CYAN))
+    lines.append(colorize(border + bottom_char * (width - 2) + border, Colors.BRIGHT_CYAN))
     
     return '\n'.join(lines)
 

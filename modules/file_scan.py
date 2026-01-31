@@ -6,11 +6,17 @@ Detects file types and performs comprehensive scanning
 import subprocess
 import os
 import re
-import magic
-import magic
 import base64
 import binascii
 from pathlib import Path
+
+# Handle magic library import for cross-platform support
+try:
+    import magic
+    MAGIC_AVAILABLE = True
+except ImportError:
+    MAGIC_AVAILABLE = False
+
 try:
     from PIL import Image
     import pytesseract
@@ -26,26 +32,60 @@ class FileScanner:
         
     def detect_file_type(self, filepath):
         """Detect file type using magic bytes and file extension"""
+        ext = Path(filepath).suffix.lower()
+        
+        # Try python-magic first if available
+        if MAGIC_AVAILABLE:
+            try:
+                mime_type = magic.from_file(filepath, mime=True)
+                file_desc = magic.from_file(filepath)
+                return {
+                    'mime': mime_type,
+                    'description': file_desc,
+                    'extension': ext
+                }
+            except Exception:
+                pass
+        
+        # Fallback: detect by reading magic bytes
         try:
-            # Use python-magic for accurate detection
-            mime_type = magic.from_file(filepath, mime=True)
+            with open(filepath, 'rb') as f:
+                header = f.read(16)
             
-            # Also get human-readable description
-            file_desc = magic.from_file(filepath)
-            
-            # Get file extension
-            ext = Path(filepath).suffix.lower()
-            
-            return {
-                'mime': mime_type,
-                'description': file_desc,
-                'extension': ext
+            # Common file signatures
+            signatures = {
+                b'\x89PNG': ('image/png', 'PNG image'),
+                b'\xff\xd8\xff': ('image/jpeg', 'JPEG image'),
+                b'GIF87a': ('image/gif', 'GIF image'),
+                b'GIF89a': ('image/gif', 'GIF image'),
+                b'PK\x03\x04': ('application/zip', 'ZIP archive'),
+                b'%PDF': ('application/pdf', 'PDF document'),
+                b'\x7fELF': ('application/x-executable', 'ELF executable'),
+                b'MZ': ('application/x-dosexec', 'PE executable'),
+                b'\xd0\xcf\x11\xe0': ('application/msword', 'MS Office document'),
+                b'\x1f\x8b': ('application/gzip', 'Gzip archive'),
+                b'BZh': ('application/x-bzip2', 'Bzip2 archive'),
+                b'Rar!': ('application/x-rar', 'RAR archive'),
+                b'\xfd7zXZ': ('application/x-xz', 'XZ archive'),
             }
+            
+            for sig, (mime, desc) in signatures.items():
+                if header.startswith(sig):
+                    return {'mime': mime, 'description': desc, 'extension': ext}
+            
+            # Try to detect if text
+            try:
+                with open(filepath, 'r', encoding='utf-8') as f:
+                    f.read(1024)
+                return {'mime': 'text/plain', 'description': 'ASCII text', 'extension': ext}
+            except:
+                return {'mime': 'application/octet-stream', 'description': 'Binary data', 'extension': ext}
+                
         except Exception as e:
             return {
                 'mime': 'unknown',
                 'description': str(e),
-                'extension': Path(filepath).suffix.lower()
+                'extension': ext
             }
     
     def run_strings(self, filepath):

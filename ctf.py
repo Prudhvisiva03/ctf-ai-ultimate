@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 CTFHunter - The World's First AI-Powered CTF Assistant
 Simple & Beautiful Interface
@@ -12,6 +13,16 @@ import json
 import subprocess
 import re
 from datetime import datetime
+
+# Fix Windows UTF-8 encoding - safe approach
+if sys.platform.startswith('win'):
+    try:
+        import ctypes
+        kernel32 = ctypes.windll.kernel32
+        kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
+        ctypes.windll.kernel32.SetConsoleOutputCP(65001)
+    except:
+        pass
 
 # ═══════════════════════════════════════════════════════════════════════════════
 # COLORS & STYLING

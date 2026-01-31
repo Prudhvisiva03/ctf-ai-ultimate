@@ -106,6 +106,16 @@ import json
 import argparse
 from pathlib import Path
 
+# Fix Windows UTF-8 encoding - safe approach
+if sys.platform.startswith('win'):
+    try:
+        import ctypes
+        kernel32 = ctypes.windll.kernel32
+        kernel32.SetConsoleMode(kernel32.GetStdHandle(-11), 7)
+        ctypes.windll.kernel32.SetConsoleOutputCP(65001)
+    except:
+        pass
+
 # Add modules to path
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'modules'))
 
