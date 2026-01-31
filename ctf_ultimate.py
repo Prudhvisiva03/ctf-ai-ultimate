@@ -743,10 +743,15 @@ class CTFUltimate:
         print(f"{Colors.CYAN}{'='*60}{Colors.RESET}")
         print(f"""
 Commands:
-  {Colors.GREEN}solve <file/url>{Colors.RESET}  - Analyze file or URL
+  {Colors.GREEN}solve <file/url>{Colors.RESET}  - Analyze file or URL (use FULL PATH or drag & drop)
   {Colors.GREEN}crypto <text>{Colors.RESET}     - Decode crypto text
   {Colors.GREEN}osint <username>{Colors.RESET}  - OSINT on username
+  {Colors.GREEN}cd <directory>{Colors.RESET}    - Change directory
+  {Colors.GREEN}ls{Colors.RESET}                - List files in current directory
+  {Colors.GREEN}pwd{Colors.RESET}               - Show current directory
   {Colors.GREEN}exit{Colors.RESET}              - Exit
+
+{Colors.YELLOW}💡 TIP: Drag & drop file into terminal for full path!{Colors.RESET}
 """)
         
         while True:
@@ -758,8 +763,26 @@ Commands:
                 elif cmd.lower() == 'exit':
                     print(f"{Colors.GREEN}👋 Good luck with your CTF!{Colors.RESET}")
                     break
+                elif cmd.lower() == 'pwd':
+                    print(f"{Colors.GREEN}{os.getcwd()}{Colors.RESET}")
+                elif cmd.lower() == 'ls':
+                    files = os.listdir('.')
+                    for f in sorted(files):
+                        if os.path.isdir(f):
+                            print(f"  {Colors.BLUE}📁 {f}/{Colors.RESET}")
+                        else:
+                            print(f"  📄 {f}")
+                elif cmd.lower().startswith('cd '):
+                    new_dir = cmd[3:].strip()
+                    try:
+                        os.chdir(os.path.expanduser(new_dir))
+                        print(f"{Colors.GREEN}📂 Changed to: {os.getcwd()}{Colors.RESET}")
+                    except:
+                        print(f"{Colors.RED}❌ Cannot change to: {new_dir}{Colors.RESET}")
                 elif cmd.lower().startswith('solve '):
-                    target = cmd[6:].strip()
+                    target = cmd[6:].strip().strip('"').strip("'")
+                    # Expand ~ to home directory
+                    target = os.path.expanduser(target)
                     self.analyze(target)
                 elif cmd.lower().startswith('crypto '):
                     text = cmd[7:].strip()
@@ -767,8 +790,9 @@ Commands:
                 elif cmd.lower().startswith('osint '):
                     username = cmd[6:].strip()
                     self.osint_username(username)
-                elif os.path.exists(cmd) or cmd.startswith('http'):
-                    self.analyze(cmd)
+                elif os.path.exists(cmd) or os.path.exists(os.path.expanduser(cmd)) or cmd.startswith('http'):
+                    target = os.path.expanduser(cmd)
+                    self.analyze(target)
                 else:
                     # Try as crypto text
                     self.analyze_crypto(cmd)
